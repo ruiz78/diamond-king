@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1280">
 <title>Diamond King — Baseball Prediction Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
@@ -835,24 +835,7 @@ body::before {
 /* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
-@media (max-width: 1100px) {
-  .summary-grid { grid-template-columns: repeat(2, 1fr); }
-  .games-grid   { grid-template-columns: repeat(2, 1fr); }
-  .edge-grid    { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-  .sidebar { width: 60px; }
-  .sidebar .logo-name, .sidebar .logo-sub,
-  .sidebar .nav-section, .sidebar .nav-item span,
-  .sidebar-footer { display: none; }
-  .nav-item { justify-content: center; padding: 12px; }
-  .main { margin-left: 60px; }
-  .summary-grid { grid-template-columns: repeat(2, 1fr); }
-  .games-grid   { grid-template-columns: 1fr; }
-  .page { padding: 16px; }
-  .topbar { padding: 12px 16px; }
-}
+/* No mobile responsiveness - desktop/web only */
 </style>
 </head>
 <body>
@@ -1307,10 +1290,7 @@ body::before {
   flex-shrink: 0;
 }
 
-@media (max-width: 900px) {
-  .parlay-layout { grid-template-columns: 1fr; }
-  .add-edge-grid { grid-template-columns: 1fr; }
-}
+/* Desktop only */
 </style>
 
   <!-- ══ PAGE: PARLAY BUILDER ══ -->
