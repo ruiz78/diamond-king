@@ -1315,89 +1315,70 @@ body::before {
 
   <!-- ══ PAGE: PARLAY BUILDER ══ -->
   <div class="page" id="page-parlay">
-    <div class="parlay-layout">
 
-      <!-- LEFT: Add picks + legs -->
-      <div>
-        <div class="section-header">
-          <div class="section-title">🎰 Build Your Parlay</div>
-          <div class="section-count" id="parlay-leg-count">0 legs</div>
-        </div>
-
-        <!-- Current legs -->
-        <div id="parlay-legs-list" class="parlay-picks-list" style="margin-bottom:20px;">
-          <div id="parlay-empty" style="text-align:center;padding:32px;background:var(--card);border:1px dashed var(--border);border-radius:14px;color:var(--muted);">
-            <div style="font-size:32px;margin-bottom:8px;">🎰</div>
-            <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:4px;">No legs added yet</div>
-            <div style="font-size:12px;">Add picks from the Royal Picks below</div>
-          </div>
-        </div>
-
-        <!-- Preset Parlays -->
-        <div class="section-header" style="margin-top:4px;">
-          <div class="section-title">⚡ Quick Parlays</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('safe')">🛡️ Safe 3-Leg</button>
-          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('strong')">🔥 Strong 3-Leg</button>
-          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('longshot')">🚀 Long Shot 3-Leg</button>
-        </div>
-
-        <!-- Add from top edges -->
-        <div class="section-header">
-          <div class="section-title">➕ Add From Royal Picks</div>
-        </div>
-        <div class="add-edge-grid" id="parlay-add-grid">
-          <div class="loading-wrap" style="grid-column:1/-1">
-            <div class="loading-crown">👑</div>
-            <div class="loading-text">Loading picks...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT: Summary -->
-      <div>
-        <div class="parlay-summary">
-          <div class="parlay-summary-title">👑 PARLAY SUMMARY</div>
-
-          <div class="parlay-stat-row">
-            <div class="parlay-stat-label">Legs</div>
-            <div class="parlay-stat-val" id="ps-legs">0</div>
-          </div>
-          <div class="parlay-stat-row">
-            <div class="parlay-stat-label">Combined Odds</div>
-            <div class="parlay-stat-val" id="ps-odds">—</div>
-          </div>
-          <div class="parlay-stat-row">
-            <div class="parlay-stat-label">Win Probability</div>
-            <div class="parlay-stat-val green" id="ps-prob">—</div>
-          </div>
-          <div class="parlay-stat-row">
-            <div class="parlay-stat-label">Expected Value</div>
-            <div class="parlay-stat-val" id="ps-ev">—</div>
-          </div>
-          <div class="parlay-stat-row">
-            <div class="parlay-stat-label">Rating</div>
-            <div class="parlay-stat-val" id="ps-rating" style="font-size:14px">—</div>
-          </div>
-
-          <div class="parlay-payout-section">
-            <div class="parlay-bet-row">
-              <div class="parlay-bet-label">Bet $</div>
-              <input class="parlay-bet-input" id="parlay-bet-amount" type="number" value="10" min="1" oninput="updateParlayPayout()">
-            </div>
-            <div class="parlay-payout-display">
-              <div class="parlay-payout-label">Potential Payout</div>
-              <div class="parlay-payout-val" id="ps-payout">$0.00</div>
-            </div>
-          </div>
-
-          <button class="parlay-add-btn" onclick="copyParlay()">📋 Copy Parlay</button>
-          <button class="clear-parlay-btn" onclick="clearParlay()">✕ Clear All Legs</button>
-        </div>
-      </div>
-
+    <!-- QUICK PRESETS -->
+    <div class="section-header">
+      <div class="section-title">⚡ Quick Build</div>
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="sort-btn active" style="flex:1;" onclick="buildPresetParlay('safe')">🛡️ Safe 3-Leg</button>
+      <button class="sort-btn" style="flex:1;" onclick="buildPresetParlay('strong')">🔥 Strong 3-Leg</button>
+      <button class="sort-btn" style="flex:1;" onclick="buildPresetParlay('longshot')">🚀 Long Shot 3-Leg</button>
+    </div>
+
+    <!-- SUMMARY (always visible, compact) -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Legs</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-legs">0</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Odds</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-odds">—</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Win%</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--green);" id="ps-prob">—</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">EV</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;" id="ps-ev">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="font-size:11px;color:var(--muted2);font-weight:600;">Bet $</div>
+        <input class="parlay-bet-input" id="parlay-bet-amount" type="number" value="10" min="1" oninput="updateParlayPayout()" style="width:70px;flex-shrink:0;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Payout</div>
+          <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--green);" id="ps-payout">$0.00</div>
+        </div>
+        <div id="ps-rating" style="font-size:11px;font-weight:700;color:var(--gold);">—</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="parlay-add-btn" style="flex:1;margin:0;padding:9px;" onclick="copyParlay()">📋 Copy</button>
+        <button class="clear-parlay-btn" style="flex:1;margin:0;padding:9px;" onclick="clearParlay()">✕ Clear</button>
+      </div>
+    </div>
+
+    <!-- CURRENT LEGS -->
+    <div class="section-header">
+      <div class="section-title">🎰 Your Parlay</div>
+      <div class="section-count" id="parlay-leg-count">0 legs</div>
+    </div>
+    <div id="parlay-legs-list" class="parlay-picks-list" style="margin-bottom:20px;">
+      <div id="parlay-empty" style="text-align:center;padding:20px;background:var(--card);border:1px dashed var(--border);border-radius:14px;color:var(--muted);">
+        <div style="font-size:24px;margin-bottom:4px;">🎰</div>
+        <div style="font-size:12px;">Click Quick Build or add picks below</div>
+      </div>
+    </div>
+
+    <!-- ADD FROM EDGES -->
+    <div class="section-header">
+      <div class="section-title">➕ Add From Royal Picks</div>
+    </div>
+    <div id="parlay-add-grid" style="display:flex;flex-direction:column;gap:6px;"></div>
+
   </div>
 
 <script>
