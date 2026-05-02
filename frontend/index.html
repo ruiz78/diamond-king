@@ -937,10 +937,7 @@ body::before {
     <!-- TONIGHT'S GAMES PREVIEW -->
     <div class="section-header">
       <div class="section-title">🏟️ Tonight's Slate</div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button class="refresh-btn" onclick="fetchLiveScores()" style="font-size:10px;padding:4px 10px;background:var(--red-dim);border-color:rgba(232,69,74,0.3);color:var(--red);">🔴 Live</button>
-        <div class="section-count" id="games-count-badge">0 games</div>
-      </div>
+<div class="section-count" id="games-count-badge">0 games</div>
     </div>
     <div class="games-grid" id="games-grid-dash">
       <div class="loading-wrap" style="grid-column:1/-1">
@@ -977,8 +974,7 @@ body::before {
     <div class="section-header">
       <div class="section-title">🏟️ Full Slate</div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <div style="display:flex;gap:6px;align-items:center;">
-          <button class="refresh-btn" onclick="fetchLiveScores()" style="font-size:11px;background:var(--red-dim);border-color:rgba(232,69,74,0.3);color:var(--red);">🔴 Live Scores</button>
+<div style="display:flex;gap:6px;align-items:center;">
           <button class="refresh-btn" onclick="fetchGameOdds()" style="font-size:11px;">💰 Load Odds</button>
           <div class="section-count" id="all-games-count">0 games</div>
         </div>
@@ -1605,16 +1601,17 @@ body::before {
   gap: 2px;
 }
 
-.game-proj-fill-fav {
+.game-proj-fill-green {
   height: 100%;
   background: linear-gradient(90deg, var(--green), #2db87a);
   border-radius: 6px 0 0 6px;
   transition: width 0.6s ease;
 }
 
-.game-proj-fill-dog {
+.game-proj-fill-grey {
   height: 100%;
   background: var(--muted);
+  opacity: 0.5;
   border-radius: 0 6px 6px 0;
   transition: width 0.6s ease;
 }
@@ -2139,8 +2136,8 @@ function gameCardHTML(g) {
     <div style="border-top:1px solid var(--border);padding:10px 14px 4px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">🤖 Diamond King Projection</div>
       <div class="game-proj-bar">
-        <div class="game-proj-fill-fav" style="width:${Math.round(favWP*100)}%;"></div>
-        <div class="game-proj-fill-dog" style="width:${Math.round(dogWP*100)}%;"></div>
+        <div class="game-proj-fill-green" style="width:${Math.round(favWP*100)}%;border-radius:6px 0 0 6px;"></div>
+        <div class="game-proj-fill-grey" style="width:${Math.round(dogWP*100)}%;border-radius:0 6px 6px 0;"></div>
       </div>
       <div class="game-proj-labels">
         <span class="${awayFav ? 'winner' : ''}">${g.away_team_abbr} ${Math.round(awayWP*100)}%</span>
@@ -2273,6 +2270,7 @@ function gameCardHTML(g) {
     </div>`;
 }
 
+let liveScoresFetched = false;
 function renderGames() {
   const count = state.games.length;
   document.getElementById('games-count-badge').textContent = count + ' games';
@@ -2284,6 +2282,12 @@ function renderGames() {
 
   document.getElementById('games-grid-dash').innerHTML = html;
   document.getElementById('games-grid-full').innerHTML = html;
+
+  // Auto-fetch live scores once when games load
+  if (count && !liveScoresFetched) {
+    liveScoresFetched = true;
+    fetchLiveScores();
+  }
 }
 
 // ── Pitchers ─────────────────────────
