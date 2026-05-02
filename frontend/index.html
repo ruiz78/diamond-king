@@ -977,7 +977,10 @@ body::before {
   <div class="page" id="page-games">
     <div class="section-header">
       <div class="section-title">🏟️ Full Slate</div>
-      <div class="section-count" id="all-games-count">0 games</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="refresh-btn" onclick="fetchGameOdds()" style="font-size:11px;">💰 Load Odds</button>
+        <div class="section-count" id="all-games-count">0 games</div>
+      </div>
     </div>
     <div class="games-grid" id="games-grid-full" style="grid-template-columns: repeat(3, 1fr);">
       <div class="loading-wrap" style="grid-column:1/-1">
@@ -1554,6 +1557,49 @@ body::before {
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
+
+/* ═══ GAME ODDS STYLES ═══ */
+.game-odds-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+}
+.game-odds-cell {
+  background: var(--card2);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.game-odds-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.game-odds-teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.game-odds-team { text-align: center; }
+.game-odds-abbr { font-size: 9px; font-weight: 700; color: var(--muted2); }
+.game-odds-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.game-odds-edge { font-size: 9px; font-weight: 700; margin-top: 1px; }
+.game-odds-edge.pos { color: var(--green); }
+.game-odds-edge.neg { color: var(--red); }
+.game-odds-edge.neu { color: var(--muted); }
+.game-odds-divider { font-size: 10px; color: var(--muted); align-self: center; }
+.game-odds-book { font-size: 8px; color: var(--muted); text-align: right; margin-top: 3px; }
+.odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
 </style>
 
   <!-- ══ PAGE: LIVE CENTER ══ -->
@@ -1865,8 +1911,122 @@ function filterEdgesByMarket(market, btn) {
 }
 
 // ── Games ────────────────────────────
+let gameOdds = {};
+
+async function fetchGameOdds() {
+  showToast('⏳ Fetching game odds...');
+  try {
+    const res = await fetch(
+      `https://api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey=5a5e898df52b4c54e1535b5ee8db8a4b&regions=us&markets=h2h,spreads&oddsFormat=american&bookmakers=draftkings,fanduel,betmgm`
+    );
+    if (!res.ok) { showToast('⚠️ Odds API error'); return; }
+    const events = await res.json();
+    gameOdds = {};
+    events.forEach(event => {
+      const away = event.away_team;
+      const home = event.home_team;
+      let ml_away=null, ml_home=null, spread_away=null, spread_home=null, spread_line=null, book='';
+      for (const bk of event.bookmakers||[]) {
+        book = bk.title;
+        for (const mkt of bk.markets||[]) {
+          if (mkt.key==='h2h') {
+            for (const oc of mkt.outcomes) {
+              if (oc.name===away) ml_away=oc.price;
+              if (oc.name===home) ml_home=oc.price;
+            }
+          }
+          if (mkt.key==='spreads') {
+            for (const oc of mkt.outcomes) {
+              if (oc.name===away) { spread_away=oc.price; spread_line=oc.point; }
+              if (oc.name===home) spread_home=oc.price;
+            }
+          }
+        }
+        if (ml_away&&ml_home) break;
+      }
+      gameOdds[`${away}|${home}`] = {ml_away,ml_home,spread_away,spread_home,spread_line,book,away,home};
+    });
+    renderGames();
+    showToast('💰 Game odds loaded!');
+  } catch(e) { showToast('⚠️ Failed to load odds'); }
+}
+
+function findGameOdds(g) {
+  for (const [key, odds] of Object.entries(gameOdds)) {
+    const awayLast = g.away_team_name?.split(' ').pop()?.toLowerCase()||'';
+    const homeLast = g.home_team_name?.split(' ').pop()?.toLowerCase()||'';
+    if (odds.away?.toLowerCase().includes(awayLast) && odds.home?.toLowerCase().includes(homeLast)) return odds;
+  }
+  return null;
+}
+
+function fmtOdds(o) { if(o===null||o===undefined) return '—'; return o>0?`+${o}`:`${o}`; }
+
+function edgeCls(edge) { return edge>0.04?'pos':edge<-0.04?'neg':'neu'; }
+
 function gameCardHTML(g) {
   const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '—';
+  const odds = findGameOdds(g);
+
+  const awayW=g.away_record_w||0, awayL=g.away_record_l||1;
+  const homeW=g.home_record_w||0, homeL=g.home_record_l||1;
+  const awayPct=awayW/Math.max(awayW+awayL,1);
+  const homePct=homeW/Math.max(homeW+homeL,1);
+  const tot=awayPct+homePct||1;
+  const awayWP=awayPct/tot, homeWP=homePct/tot;
+
+  let oddsSection = `<div class="odds-loading">Click 💰 Load Odds to see moneyline & run line</div>`;
+
+  if (odds) {
+    const calcEdge = (ml, wp) => {
+      if (!ml) return {edge:0};
+      const imp = ml>0 ? 100/(ml+100) : Math.abs(ml)/(Math.abs(ml)+100);
+      return {edge: wp-imp};
+    };
+    const ae = calcEdge(odds.ml_away, awayWP);
+    const he = calcEdge(odds.ml_home, homeWP);
+    const sl = odds.spread_line;
+    const slHome = sl ? (sl*-1>0?'+':'')+(sl*-1) : '+1.5';
+
+    oddsSection = `
+      <div class="game-odds-row">
+        <div class="game-odds-cell">
+          <div class="game-odds-label">💰 Moneyline</div>
+          <div class="game-odds-teams">
+            <div class="game-odds-team">
+              <div class="game-odds-abbr">${g.away_team_abbr}</div>
+              <div class="game-odds-val">${fmtOdds(odds.ml_away)}</div>
+              <div class="game-odds-edge ${edgeCls(ae.edge)}">${ae.edge>0?'+':''}${(ae.edge*100).toFixed(1)}%</div>
+            </div>
+            <div class="game-odds-divider">vs</div>
+            <div class="game-odds-team">
+              <div class="game-odds-abbr">${g.home_team_abbr}</div>
+              <div class="game-odds-val">${fmtOdds(odds.ml_home)}</div>
+              <div class="game-odds-edge ${edgeCls(he.edge)}">${he.edge>0?'+':''}${(he.edge*100).toFixed(1)}%</div>
+            </div>
+          </div>
+          <div class="game-odds-book">${odds.book}</div>
+        </div>
+        <div class="game-odds-cell">
+          <div class="game-odds-label">📊 Run Line</div>
+          <div class="game-odds-teams">
+            <div class="game-odds-team">
+              <div class="game-odds-abbr">${g.away_team_abbr}</div>
+              <div class="game-odds-val">${fmtOdds(odds.spread_away)}</div>
+              <div class="game-odds-edge neu">${sl>0?'+':''}${sl??'-1.5'}</div>
+            </div>
+            <div class="game-odds-divider">vs</div>
+            <div class="game-odds-team">
+              <div class="game-odds-abbr">${g.home_team_abbr}</div>
+              <div class="game-odds-val">${fmtOdds(odds.spread_home)}</div>
+              <div class="game-odds-edge neu">${slHome}</div>
+            </div>
+          </div>
+          <div class="game-odds-book">${odds.book}</div>
+        </div>
+      </div>`;
+  }
+
   return `
     <div class="game-card">
       <div class="game-header">
@@ -1889,6 +2049,7 @@ function gameCardHTML(g) {
         <span>${g.home_pitcher_name || 'TBD'}</span>
       </div>
       <div class="game-venue">${g.venue || ''}</div>
+      ${oddsSection}
     </div>`;
 }
 
