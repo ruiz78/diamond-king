@@ -9,7 +9,9 @@ COPY . .
 
 RUN mkdir -p data models
 RUN chmod +x start.sh
+# Fix Windows line endings
+RUN sed -i 's/\r//' start.sh
 
 ENV PYTHONPATH=/app
 
-CMD ["/bin/bash", "/app/start.sh"]
+CMD ["/bin/bash", "start.sh"]
