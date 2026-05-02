@@ -1476,6 +1476,7 @@ function renderAll() {
   renderGames();
   renderPitchers();
   renderBatters();
+  renderParlayAddGrid();
 }
 
 // ── Summary Cards ────────────────────
@@ -1898,12 +1899,7 @@ function copyParlay() {
   navigator.clipboard.writeText(text).then(() => showToast('📋 Parlay copied to clipboard!'));
 }
 
-// Patch renderAll to also render parlay grid
-const _origRenderAll = renderAll;
-function renderAll() {
-  _origRenderAll();
-  renderParlayAddGrid();
-}
+// Parlay grid is rendered via renderAll below
 
 // ═══════════════════════════════════════
 //  INIT
