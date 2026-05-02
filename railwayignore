@@ -1,0 +1,5 @@
+frontend/
+*.html
+data/
+*.json
+*.pkl
