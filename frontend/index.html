@@ -1071,8 +1071,8 @@ body::before {
 /* ═══ PARLAY STYLES ═══ */
 .parlay-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -1261,32 +1261,32 @@ body::before {
 
 /* Add from edges */
 .add-edge-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin-top: 8px;
 }
 
 .add-edge-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 11px 13px;
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
   transition: all 0.2s;
 }
-.add-edge-card:hover { border-color: var(--gold); transform: scale(1.02); }
+.add-edge-card:hover { border-color: var(--gold); }
 .add-edge-card.added { border-color: var(--green); background: rgba(61,214,140,0.05); }
 
-.add-edge-info { flex: 1; min-width: 0; }
-.add-edge-player { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.add-edge-prop { font-size: 10px; color: var(--muted2); }
+.add-edge-info { flex: 1; min-width: 0; overflow: hidden; }
+.add-edge-player { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-edge-prop { font-size: 10px; color: var(--muted2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .add-btn {
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   border-radius: 50%;
   background: var(--gold-dim);
   border: 1px solid rgba(200,164,74,0.3);
@@ -1331,6 +1331,16 @@ body::before {
             <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:4px;">No legs added yet</div>
             <div style="font-size:12px;">Add picks from the Royal Picks below</div>
           </div>
+        </div>
+
+        <!-- Preset Parlays -->
+        <div class="section-header" style="margin-top:4px;">
+          <div class="section-title">⚡ Quick Parlays</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('safe')">🛡️ Safe 3-Leg</button>
+          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('strong')">🔥 Strong 3-Leg</button>
+          <button class="sort-btn" style="flex:1;min-width:120px;" onclick="buildPresetParlay('longshot')">🚀 Long Shot 3-Leg</button>
         </div>
 
         <!-- Add from top edges -->
@@ -1878,6 +1888,34 @@ function updateParlayPayout() {
   const evSign = ev >= 0 ? '+' : '';
   document.getElementById('ps-ev').textContent = evSign + '$' + Math.abs(ev).toFixed(2);
   document.getElementById('ps-ev').className = 'parlay-stat-val ' + (ev >= 0 ? 'green' : 'red');
+}
+
+function buildPresetParlay(type) {
+  const edges = dedupEdges(state.edges);
+  if (edges.length < 3) { showToast('⚠️ Need more edges loaded'); return; }
+
+  parlayLegs = [];
+
+  if (type === 'safe') {
+    // Highest win probability — safest bets
+    const safe = [...edges].sort((a, b) => b.model_prob - a.model_prob).slice(0, 3);
+    parlayLegs = safe;
+    showToast('🛡️ Safe 3-leg parlay built!');
+  } else if (type === 'strong') {
+    // Best edge % — highest value bets
+    const strong = [...edges].sort((a, b) => b.edge - a.edge).slice(0, 3);
+    parlayLegs = strong;
+    showToast('🔥 Strong 3-leg parlay built!');
+  } else if (type === 'longshot') {
+    // Highest odds — biggest potential payout
+    const long = [...edges].filter(e => e.odds > 0).sort((a, b) => b.odds - a.odds).slice(0, 3);
+    parlayLegs = long.length >= 3 ? long : [...edges].sort((a, b) => b.odds - a.odds).slice(0, 3);
+    showToast('🚀 Long shot parlay built!');
+  }
+
+  renderParlayLegs();
+  renderParlayAddGrid();
+  updateParlayStats();
 }
 
 function copyParlay() {
