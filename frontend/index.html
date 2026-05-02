@@ -1917,37 +1917,7 @@ function showEmptyState() {
 // ═══════════════════════════════════════
 //  RENDER ALL
 // ═══════════════════════════════════════
-// Player → team abbreviation lookup (built from games + pitchers + batters)
-let playerTeamMap = {};
-
-function buildPlayerTeamMap() {
-  playerTeamMap = {};
-  // From games: map pitcher names to their team
-  state.games.forEach(g => {
-    if (g.away_pitcher_name && g.away_team_abbr)
-      playerTeamMap[g.away_pitcher_name.trim().toLowerCase()] = g.away_team_abbr;
-    if (g.home_pitcher_name && g.home_team_abbr)
-      playerTeamMap[g.home_pitcher_name.trim().toLowerCase()] = g.home_team_abbr;
-  });
-  // From edges: if the edge object itself has a team field use it
-  state.edges.forEach(e => {
-    if (e.team && e.player_name)
-      playerTeamMap[e.player_name.trim().toLowerCase()] = e.team;
-  });
-  // From batters: use team field if it exists
-  state.batters.forEach(b => {
-    if (b.team && b.player_name)
-      playerTeamMap[b.player_name.trim().toLowerCase()] = b.team;
-  });
-  // From pitchers: use team field if it exists
-  state.pitchers.forEach(p => {
-    if (p.team && p.player_name)
-      playerTeamMap[p.player_name.trim().toLowerCase()] = p.team;
-  });
-}
-
 function renderAll() {
-  buildPlayerTeamMap();
   renderSummary();
   renderEdges();
   renderGames();
@@ -1979,12 +1949,9 @@ function edgeCardHTML(e) {
       <div class="edge-stripe ${tier}"></div>
       <div class="edge-avatar">${icon}</div>
       <div class="edge-info">
-        <div class="edge-player">
-          ${e.player_name}
-          ${(()=>{const t=playerTeamMap[e.player_name?.trim().toLowerCase()];return t?`<span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;margin-left:6px;letter-spacing:0.5px;">${t}</span>`:'';})()}
-        </div>
+        <div class="edge-player">${e.player_name}</div>
         <div class="edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
-        <div class="edge-book">Best line @ ${e.book} · Proj: ${e.model_proj}</div>
+        <div class="edge-book">Best line @ ${e.book} · <span style="color:var(--green);font-weight:700;">Proj: ${e.model_proj}</span></div>
       </div>
       <div class="edge-right">
         <div class="edge-prob ${probClass}">${prob}</div>
