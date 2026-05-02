@@ -873,10 +873,6 @@ body::before {
   </div>
 
   <div class="nav-section">Tools</div>
-  <div class="nav-item" onclick="showPage('live', this)">
-    <span class="nav-icon">📡</span>
-    <span>Live Center</span>
-  </div>
   <div class="nav-item" onclick="showPage('parlay', this)">
     <span class="nav-icon">🎰</span>
     <span>Parlay Builder</span>
@@ -941,7 +937,10 @@ body::before {
     <!-- TONIGHT'S GAMES PREVIEW -->
     <div class="section-header">
       <div class="section-title">🏟️ Tonight's Slate</div>
-      <div class="section-count" id="games-count-badge">0 games</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="refresh-btn" onclick="fetchLiveScores()" style="font-size:10px;padding:4px 10px;background:var(--red-dim);border-color:rgba(232,69,74,0.3);color:var(--red);">🔴 Live</button>
+        <div class="section-count" id="games-count-badge">0 games</div>
+      </div>
     </div>
     <div class="games-grid" id="games-grid-dash">
       <div class="loading-wrap" style="grid-column:1/-1">
@@ -978,8 +977,11 @@ body::before {
     <div class="section-header">
       <div class="section-title">🏟️ Full Slate</div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="refresh-btn" onclick="fetchGameOdds()" style="font-size:11px;">💰 Load Odds</button>
-        <div class="section-count" id="all-games-count">0 games</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="refresh-btn" onclick="fetchLiveScores()" style="font-size:11px;background:var(--red-dim);border-color:rgba(232,69,74,0.3);color:var(--red);">🔴 Live Scores</button>
+          <button class="refresh-btn" onclick="fetchGameOdds()" style="font-size:11px;">💰 Load Odds</button>
+          <div class="section-count" id="all-games-count">0 games</div>
+        </div>
       </div>
     </div>
     <div class="games-grid" id="games-grid-full" style="grid-template-columns: repeat(3, 1fr);">
@@ -1594,27 +1596,27 @@ body::before {
 }
 
 .game-proj-bar {
-  height: 6px;
+  height: 8px;
   background: var(--border);
   border-radius: 6px;
   overflow: hidden;
   margin: 8px 0 4px;
   display: flex;
+  gap: 2px;
 }
 
-.game-proj-fill-away {
+.game-proj-fill-fav {
   height: 100%;
   background: linear-gradient(90deg, var(--green), #2db87a);
   border-radius: 6px 0 0 6px;
   transition: width 0.6s ease;
 }
 
-.game-proj-fill-home {
+.game-proj-fill-dog {
   height: 100%;
-  background: linear-gradient(90deg, #2db87a, var(--green));
+  background: var(--muted);
   border-radius: 0 6px 6px 0;
   transition: width 0.6s ease;
-  margin-left: auto;
 }
 
 .game-proj-labels {
@@ -1711,13 +1713,6 @@ body::before {
 .odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
 </style>
 
-  <!-- ══ PAGE: LIVE CENTER ══ -->
-  <div class="page" id="page-live" style="padding:28px 32px;">
-
-    <!-- Refresh bar -->
-    <div class="live-refresh-bar">
-      <div>
-        <div class="live-refresh-info">📡 Live scores from MLB Stats API · Props from The Odds API</div>
         <div class="live-refresh-time" id="live-last-refresh">Not yet refreshed</div>
       </div>
       <button class="live-refresh-btn" onclick="refreshLiveData()">
@@ -1869,7 +1864,6 @@ const pageTitles = {
   games:     'Games',
   pitchers:  'Pitcher Projections',
   batters:   'Batter Projections',
-  live:      'Live Center',
   parlay:    'Parlay Builder',
 };
 
@@ -2022,6 +2016,33 @@ function filterEdgesByMarket(market, btn) {
 // ── Games ────────────────────────────
 let gameOdds = {};
 
+
+// ── Live Scores ─────────────────────────────────────────────────────
+let liveScores = {}; // game_pk -> {away_score, home_score, inning, inning_half, abstract_state}
+
+async function fetchLiveScores() {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const res = await fetch(
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=linescore`
+    );
+    const data = await res.json();
+    const games = data.dates?.[0]?.games || [];
+    liveScores = {};
+    games.forEach(g => {
+      liveScores[g.gamePk] = {
+        away_score:     g.teams?.away?.score ?? null,
+        home_score:     g.teams?.home?.score ?? null,
+        inning:         g.linescore?.currentInning || null,
+        inning_half:    g.linescore?.inningHalf || '',
+        abstract_state: g.status?.abstractGameState || 'Preview',
+        detail_state:   g.status?.detailedState || '',
+      };
+    });
+    renderGames();
+  } catch(e) { console.log('Live score fetch failed', e); }
+}
+
 async function fetchGameOdds() {
   showToast('⏳ Fetching game odds...');
   try {
@@ -2118,8 +2139,8 @@ function gameCardHTML(g) {
     <div style="border-top:1px solid var(--border);padding:10px 14px 4px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">🤖 Diamond King Projection</div>
       <div class="game-proj-bar">
-        <div class="game-proj-fill-away" style="width:${Math.round(awayWP*100)}%;"></div>
-        <div class="game-proj-fill-home" style="width:${Math.round(homeWP*100)}%;margin-left:${Math.round(awayWP*100) === 100 ? 0 : 2}px;"></div>
+        <div class="game-proj-fill-fav" style="width:${Math.round(favWP*100)}%;"></div>
+        <div class="game-proj-fill-dog" style="width:${Math.round(dogWP*100)}%;"></div>
       </div>
       <div class="game-proj-labels">
         <span class="${awayFav ? 'winner' : ''}">${g.away_team_abbr} ${Math.round(awayWP*100)}%</span>
@@ -2201,7 +2222,17 @@ function gameCardHTML(g) {
     <div class="game-card ${awayFav ? 'fav-away' : 'fav-home'}">
       <div class="game-header">
         <div class="game-time">${time} ET</div>
-        <div class="game-status">${g.status || 'Scheduled'}</div>
+        ${(()=>{
+          const ls = liveScores[g.game_pk];
+          if (!ls) return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
+          if (ls.abstract_state === 'Live') {
+            return `<div class="game-status" style="background:rgba(232,69,74,0.15);color:var(--red);border-color:rgba(232,69,74,0.3);">🔴 ${ls.inning_half?.charAt(0)||''}${ls.inning}</div>`;
+          }
+          if (ls.abstract_state === 'Final') {
+            return `<div class="game-status" style="color:var(--muted2);">FINAL</div>`;
+          }
+          return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
+        })()}
       </div>
       <div class="game-matchup">
         <div class="team-block">
@@ -2209,7 +2240,23 @@ function gameCardHTML(g) {
           <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
           <div class="fav-badge ${awayFav ? 'fav' : 'dog'}">${awayFav ? '⭐ FAV' : 'DOG'}</div>
         </div>
-        <div class="vs-divider">@</div>
+        <div class="vs-divider">
+          ${(()=>{
+            const ls = liveScores[g.game_pk];
+            if (ls && (ls.abstract_state === 'Live' || ls.abstract_state === 'Final') && ls.away_score !== null) {
+              const awayWin = ls.away_score > ls.home_score;
+              const homeWin = ls.home_score > ls.away_score;
+              return `<div style="text-align:center;">
+                <div style="font-family:'Cinzel',serif;font-size:28px;font-weight:700;line-height:1;display:flex;align-items:center;gap:8px;">
+                  <span style="color:${awayWin?'var(--green)':'var(--muted2)'}">${ls.away_score}</span>
+                  <span style="font-size:16px;color:var(--muted);">—</span>
+                  <span style="color:${homeWin?'var(--green)':'var(--muted2)'}">${ls.home_score}</span>
+                </div>
+              </div>`;
+            }
+            return '<span>@</span>';
+          })()}
+        </div>
         <div class="team-block">
           <div class="team-abbr ${!awayFav ? 'favorite' : 'underdog'}">${g.home_team_abbr || '—'}</div>
           <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
