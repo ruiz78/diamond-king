@@ -419,13 +419,13 @@ body::before {
 }
 
 .edge-prop {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--muted2);
   margin-top: 3px;
 }
 
 .edge-book {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 2px;
 }
@@ -1917,7 +1917,20 @@ function showEmptyState() {
 // ═══════════════════════════════════════
 //  RENDER ALL
 // ═══════════════════════════════════════
+let playerTeamMap = {};
+function buildPlayerTeamMap() {
+  playerTeamMap = {};
+  state.games.forEach(g => {
+    if (g.away_pitcher_name) playerTeamMap[g.away_pitcher_name.trim().toLowerCase()] = g.away_team_abbr;
+    if (g.home_pitcher_name) playerTeamMap[g.home_pitcher_name.trim().toLowerCase()] = g.home_team_abbr;
+  });
+  state.edges.forEach(e => { if (e.team && e.player_name) playerTeamMap[e.player_name.trim().toLowerCase()] = e.team; });
+  state.batters.forEach(b => { if (b.team && b.player_name) playerTeamMap[b.player_name.trim().toLowerCase()] = b.team; });
+  state.pitchers.forEach(p => { if (p.team && p.player_name) playerTeamMap[p.player_name.trim().toLowerCase()] = p.team; });
+}
+
 function renderAll() {
+  buildPlayerTeamMap();
   renderSummary();
   renderEdges();
   renderGames();
@@ -1949,9 +1962,9 @@ function edgeCardHTML(e) {
       <div class="edge-stripe ${tier}"></div>
       <div class="edge-avatar">${icon}</div>
       <div class="edge-info">
-        <div class="edge-player">${e.player_name}</div>
-        <div class="edge-prop" style="color:var(--green);font-weight:700;">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
-        <div class="edge-book">Best line @ ${e.book} · <span style="color:var(--green);font-weight:700;">Proj: ${e.model_proj}</span></div>
+        <div class="edge-player">${e.player_name}${(()=>{const t=playerTeamMap[e.player_name?.trim().toLowerCase()];return t?` <span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>`:'';})()}</div>
+        <div class="edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
+        <div class="edge-book">Best line @ ${e.book} · Proj: ${e.model_proj}</div>
       </div>
       <div class="edge-right">
         <div class="edge-prob ${probClass}">${prob}</div>
