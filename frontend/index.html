@@ -1049,8 +1049,6 @@ body::before {
     </table>
   </div>
 
-</main>
-
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1559,7 +1557,7 @@ body::before {
 </style>
 
   <!-- ══ PAGE: LIVE CENTER ══ -->
-  <div class="page" id="page-live">
+  <div class="page" id="page-live" style="padding:28px 32px;">
 
     <!-- Refresh bar -->
     <div class="live-refresh-bar">
@@ -1617,14 +1615,14 @@ body::before {
     </div>
 
   </div>
-  <div class="page" id="page-parlay">
+  <div class="page" id="page-parlay" style="padding:28px 32px;">
 
     <!-- TOP BAR: Quick build + toggle -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
       <button class="sort-btn active" style="flex:1;" onclick="buildPresetParlay('safe')">🛡️ Safe 3-Leg</button>
       <button class="sort-btn" style="flex:1;" onclick="buildPresetParlay('strong')">🔥 Strong 3-Leg</button>
       <button class="sort-btn" style="flex:1;" onclick="buildPresetParlay('longshot')">🚀 Long Shot</button>
-      <button id="summary-toggle-btn" class="sort-btn" style="flex-shrink:0;background:var(--gold-dim);border-color:rgba(200,164,74,0.4);color:var(--gold);" onclick="toggleParlaySummary()">📊 Summary</button>
+      <button id="summary-toggle-btn" class="sort-btn" style="flex-shrink:0;background:rgba(200,164,74,0.25);border-color:rgba(200,164,74,0.4);color:var(--gold);" onclick="toggleParlaySummary()">✕ Hide</button>
     </div>
 
     <!-- MAIN AREA -->
@@ -1652,7 +1650,7 @@ body::before {
       </div>
 
       <!-- SUMMARY PANEL - collapsible -->
-      <div id="parlay-summary-panel" style="width:260px;flex-shrink:0;display:none;">
+      <div id="parlay-summary-panel" style="width:260px;flex-shrink:0;display:block;">
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;">
           <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--gold);text-align:center;margin-bottom:12px;">👑 SUMMARY</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -1689,6 +1687,8 @@ body::before {
 
     </div>
   </div>
+
+</main>
 
 <script>
 // ═══════════════════════════════════════
