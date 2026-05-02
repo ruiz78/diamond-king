@@ -889,6 +889,12 @@ body::before {
     <span>Batters</span>
   </div>
 
+  <div class="nav-section">Tools</div>
+  <div class="nav-item" onclick="showPage('parlay', this)">
+    <span class="nav-icon">🎰</span>
+    <span>Parlay Builder</span>
+  </div>
+
   <div class="sidebar-footer">
     <div class="update-badge">🟢 Data Live</div>
     <div class="update-time" id="lastUpdate">Checking...</div>
@@ -1061,11 +1067,334 @@ body::before {
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<style>
+/* ═══ PARLAY STYLES ═══ */
+.parlay-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.parlay-picks-list { display: flex; flex-direction: column; gap: 8px; }
+
+.parlay-leg {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.parlay-leg::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 3px 0 0 3px;
+}
+
+.parlay-leg-num {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.parlay-leg-info { flex: 1; min-width: 0; }
+.parlay-leg-player { font-size: 14px; font-weight: 700; }
+.parlay-leg-prop { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+.parlay-leg-odds {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.parlay-leg-prob {
+  font-size: 11px;
+  color: var(--muted2);
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 50px;
+}
+
+.remove-leg {
+  background: rgba(232,69,74,0.1);
+  border: 1px solid rgba(232,69,74,0.2);
+  border-radius: 6px;
+  color: var(--red);
+  font-size: 14px;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.remove-leg:hover { background: rgba(232,69,74,0.2); }
+
+/* Summary card */
+.parlay-summary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  position: sticky;
+  top: 80px;
+}
+
+.parlay-summary-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.parlay-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.parlay-stat-row:last-of-type { border-bottom: none; }
+
+.parlay-stat-label { font-size: 12px; color: var(--muted2); font-weight: 600; }
+.parlay-stat-val {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold2);
+}
+.parlay-stat-val.green { color: var(--green); }
+.parlay-stat-val.red   { color: var(--red); }
+
+.parlay-payout-section {
+  margin-top: 16px;
+  background: var(--card2);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.parlay-bet-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.parlay-bet-label { font-size: 12px; color: var(--muted2); font-weight: 600; width: 60px; flex-shrink: 0; }
+
+.parlay-bet-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Barlow', sans-serif;
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s;
+}
+.parlay-bet-input:focus { border-color: var(--gold); }
+
+.parlay-payout-display {
+  text-align: center;
+  padding: 10px 0 4px;
+}
+
+.parlay-payout-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.parlay-payout-val {
+  font-family: 'Cinzel', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1.1;
+}
+
+.parlay-add-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #1a1508, #2a2010);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gold2);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 14px;
+}
+.parlay-add-btn:hover { background: rgba(200,164,74,0.15); transform: translateY(-1px); }
+
+.clear-parlay-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  font-family: 'Barlow', sans-serif;
+}
+.clear-parlay-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Add from edges */
+.add-edge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.add-edge-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.add-edge-card:hover { border-color: var(--gold); transform: scale(1.02); }
+.add-edge-card.added { border-color: var(--green); background: rgba(61,214,140,0.05); }
+
+.add-edge-info { flex: 1; min-width: 0; }
+.add-edge-player { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-edge-prop { font-size: 10px; color: var(--muted2); }
+
+.add-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid rgba(200,164,74,0.3);
+  color: var(--gold);
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.add-edge-card.added .add-btn {
+  background: var(--green-dim);
+  border-color: rgba(61,214,140,0.3);
+  color: var(--green);
+}
+
+.confidence-ring {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .parlay-layout { grid-template-columns: 1fr; }
+  .add-edge-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+  <!-- ══ PAGE: PARLAY BUILDER ══ -->
+  <div class="page" id="page-parlay">
+    <div class="parlay-layout">
+
+      <!-- LEFT: Add picks + legs -->
+      <div>
+        <div class="section-header">
+          <div class="section-title">🎰 Build Your Parlay</div>
+          <div class="section-count" id="parlay-leg-count">0 legs</div>
+        </div>
+
+        <!-- Current legs -->
+        <div id="parlay-legs-list" class="parlay-picks-list" style="margin-bottom:20px;">
+          <div id="parlay-empty" style="text-align:center;padding:32px;background:var(--card);border:1px dashed var(--border);border-radius:14px;color:var(--muted);">
+            <div style="font-size:32px;margin-bottom:8px;">🎰</div>
+            <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:4px;">No legs added yet</div>
+            <div style="font-size:12px;">Add picks from the Royal Picks below</div>
+          </div>
+        </div>
+
+        <!-- Add from top edges -->
+        <div class="section-header">
+          <div class="section-title">➕ Add From Royal Picks</div>
+        </div>
+        <div class="add-edge-grid" id="parlay-add-grid">
+          <div class="loading-wrap" style="grid-column:1/-1">
+            <div class="loading-crown">👑</div>
+            <div class="loading-text">Loading picks...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Summary -->
+      <div>
+        <div class="parlay-summary">
+          <div class="parlay-summary-title">👑 PARLAY SUMMARY</div>
+
+          <div class="parlay-stat-row">
+            <div class="parlay-stat-label">Legs</div>
+            <div class="parlay-stat-val" id="ps-legs">0</div>
+          </div>
+          <div class="parlay-stat-row">
+            <div class="parlay-stat-label">Combined Odds</div>
+            <div class="parlay-stat-val" id="ps-odds">—</div>
+          </div>
+          <div class="parlay-stat-row">
+            <div class="parlay-stat-label">Win Probability</div>
+            <div class="parlay-stat-val green" id="ps-prob">—</div>
+          </div>
+          <div class="parlay-stat-row">
+            <div class="parlay-stat-label">Expected Value</div>
+            <div class="parlay-stat-val" id="ps-ev">—</div>
+          </div>
+          <div class="parlay-stat-row">
+            <div class="parlay-stat-label">Rating</div>
+            <div class="parlay-stat-val" id="ps-rating" style="font-size:14px">—</div>
+          </div>
+
+          <div class="parlay-payout-section">
+            <div class="parlay-bet-row">
+              <div class="parlay-bet-label">Bet $</div>
+              <input class="parlay-bet-input" id="parlay-bet-amount" type="number" value="10" min="1" oninput="updateParlayPayout()">
+            </div>
+            <div class="parlay-payout-display">
+              <div class="parlay-payout-label">Potential Payout</div>
+              <div class="parlay-payout-val" id="ps-payout">$0.00</div>
+            </div>
+          </div>
+
+          <button class="parlay-add-btn" onclick="copyParlay()">📋 Copy Parlay</button>
+          <button class="clear-parlay-btn" onclick="clearParlay()">✕ Clear All Legs</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 <script>
 // ═══════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════
-const API = 'https://diamond-king-production.up.railway.app';
+const API = 'http://localhost:8000';
 
 // ═══════════════════════════════════════
 //  STATE
@@ -1085,6 +1414,7 @@ const pageTitles = {
   games:     'Games',
   pitchers:  'Pitcher Projections',
   batters:   'Batter Projections',
+  parlay:    'Parlay Builder',
 };
 
 function showPage(id, el) {
@@ -1382,6 +1712,197 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════
+//  PARLAY BUILDER
+// ═══════════════════════════════════════
+
+let parlayLegs = [];
+
+function renderParlayAddGrid() {
+  const grid = document.getElementById('parlay-add-grid');
+  const edges = dedupEdges(state.edges).slice(0, 20);
+  if (!edges.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted)">No edges available. Run the midnight engine first.</div>`;
+    return;
+  }
+  grid.innerHTML = edges.map((e, i) => {
+    const added = parlayLegs.some(l => l.player_name === e.player_name && l.market === e.market);
+    const icon  = e.market === 'pitcher_strikeouts' ? '⚾' :
+                  e.market === 'batter_home_runs'   ? '💥' :
+                  e.market === 'batter_hits'         ? '🏏' :
+                  e.market === 'batter_rbis'         ? '💪' : '⚡';
+    return `
+      <div class="add-edge-card ${added ? 'added' : ''}" onclick="toggleParlayLeg(${i})">
+        <div style="font-size:18px">${icon}</div>
+        <div class="add-edge-info">
+          <div class="add-edge-player">${e.player_name}</div>
+          <div class="add-edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
+        </div>
+        <div class="add-btn">${added ? '✓' : '+'}</div>
+      </div>`;
+  }).join('');
+}
+
+function toggleParlayLeg(edgeIndex) {
+  const edges = dedupEdges(state.edges).slice(0, 20);
+  const edge  = edges[edgeIndex];
+  if (!edge) return;
+
+  const existing = parlayLegs.findIndex(l => l.player_name === edge.player_name && l.market === edge.market);
+  if (existing >= 0) {
+    parlayLegs.splice(existing, 1);
+    showToast(`Removed ${edge.player_name}`);
+  } else {
+    if (parlayLegs.length >= 10) {
+      showToast('⚠️ Max 10 legs per parlay');
+      return;
+    }
+    parlayLegs.push(edge);
+    showToast(`Added ${edge.player_name} to parlay`);
+  }
+  renderParlayLegs();
+  renderParlayAddGrid();
+  updateParlayStats();
+}
+
+function renderParlayLegs() {
+  const list  = document.getElementById('parlay-legs-list');
+  const empty = document.getElementById('parlay-empty');
+  const count = document.getElementById('parlay-leg-count');
+  count.textContent = parlayLegs.length + ' legs';
+
+  if (!parlayLegs.length) {
+    list.innerHTML = '';
+    list.appendChild(empty || createEmptyEl());
+    document.getElementById('parlay-empty') && (document.getElementById('parlay-empty').style.display = '');
+    return;
+  }
+
+  list.innerHTML = parlayLegs.map((leg, i) => `
+    <div class="parlay-leg">
+      <div class="parlay-leg-num">${i + 1}</div>
+      <div class="parlay-leg-info">
+        <div class="parlay-leg-player">${leg.player_name}</div>
+        <div class="parlay-leg-prop">${leg.bet_type} ${leg.line} ${leg.stat_label} · ${leg.book}</div>
+      </div>
+      <div>
+        <div class="parlay-leg-odds">${leg.odds > 0 ? '+' : ''}${leg.odds}</div>
+        <div class="parlay-leg-prob">${leg.win_prob_pct}</div>
+      </div>
+      <div class="remove-leg" onclick="removeParlayLeg(${i})">✕</div>
+    </div>`).join('');
+}
+
+function removeParlayLeg(index) {
+  parlayLegs.splice(index, 1);
+  renderParlayLegs();
+  renderParlayAddGrid();
+  updateParlayStats();
+}
+
+function clearParlay() {
+  parlayLegs = [];
+  renderParlayLegs();
+  renderParlayAddGrid();
+  updateParlayStats();
+  showToast('Parlay cleared');
+}
+
+function americanToDecimal(odds) {
+  if (odds > 0) return (odds / 100) + 1;
+  return (100 / Math.abs(odds)) + 1;
+}
+
+function decimalToAmerican(dec) {
+  if (dec >= 2) return '+' + Math.round((dec - 1) * 100);
+  return Math.round(-100 / (dec - 1)).toString();
+}
+
+function updateParlayStats() {
+  const n = parlayLegs.length;
+  document.getElementById('ps-legs').textContent = n;
+
+  if (n === 0) {
+    document.getElementById('ps-odds').textContent  = '—';
+    document.getElementById('ps-prob').textContent  = '—';
+    document.getElementById('ps-ev').textContent    = '—';
+    document.getElementById('ps-rating').textContent = '—';
+    document.getElementById('ps-payout').textContent = '$0.00';
+    return;
+  }
+
+  // Combined decimal odds
+  const combinedDec = parlayLegs.reduce((acc, leg) => acc * americanToDecimal(leg.odds), 1);
+  const combinedAmerican = decimalToAmerican(combinedDec);
+
+  // Combined win probability (product of individual probs)
+  const combinedProb = parlayLegs.reduce((acc, leg) => acc * (leg.model_prob || 0.5), 1);
+
+  // Expected value
+  const bet = parseFloat(document.getElementById('parlay-bet-amount').value) || 10;
+  const payout = bet * combinedDec;
+  const ev = (combinedProb * payout) - ((1 - combinedProb) * bet);
+  const evSign = ev >= 0 ? '+' : '';
+
+  // Rating
+  let rating = '❌ Bad Parlay';
+  if (combinedProb >= 0.5)       rating = '👑 ROYAL PARLAY';
+  else if (combinedProb >= 0.35) rating = '🔥 Strong';
+  else if (combinedProb >= 0.2)  rating = '✅ Decent';
+  else if (combinedProb >= 0.1)  rating = '⚠️ Risky';
+
+  document.getElementById('ps-odds').textContent  = combinedAmerican;
+  document.getElementById('ps-prob').textContent  = (combinedProb * 100).toFixed(1) + '%';
+  document.getElementById('ps-ev').textContent    = evSign + '$' + Math.abs(ev).toFixed(2);
+  document.getElementById('ps-rating').textContent = rating;
+
+  const evEl = document.getElementById('ps-ev');
+  evEl.className = 'parlay-stat-val ' + (ev >= 0 ? 'green' : 'red');
+
+  updateParlayPayout();
+}
+
+function updateParlayPayout() {
+  if (!parlayLegs.length) return;
+  const bet = parseFloat(document.getElementById('parlay-bet-amount').value) || 10;
+  const combinedDec = parlayLegs.reduce((acc, leg) => acc * americanToDecimal(leg.odds), 1);
+  const payout = bet * combinedDec;
+  document.getElementById('ps-payout').textContent = '$' + payout.toFixed(2);
+
+  // Also update EV
+  const combinedProb = parlayLegs.reduce((acc, leg) => acc * (leg.model_prob || 0.5), 1);
+  const ev = (combinedProb * payout) - ((1 - combinedProb) * bet);
+  const evSign = ev >= 0 ? '+' : '';
+  document.getElementById('ps-ev').textContent = evSign + '$' + Math.abs(ev).toFixed(2);
+  document.getElementById('ps-ev').className = 'parlay-stat-val ' + (ev >= 0 ? 'green' : 'red');
+}
+
+function copyParlay() {
+  if (!parlayLegs.length) { showToast('Add legs first!'); return; }
+  const combinedDec  = parlayLegs.reduce((acc, l) => acc * americanToDecimal(l.odds), 1);
+  const combinedProb = parlayLegs.reduce((acc, l) => acc * (l.model_prob || 0.5), 1);
+  const bet = parseFloat(document.getElementById('parlay-bet-amount').value) || 10;
+
+  let text = `👑 DIAMOND KING PARLAY\n`;
+  text += `━━━━━━━━━━━━━━━━━━━━\n`;
+  parlayLegs.forEach((l, i) => {
+    text += `${i+1}. ${l.player_name} — ${l.bet_type} ${l.line} ${l.stat_label} (${l.odds > 0 ? '+' : ''}${l.odds}) @ ${l.book}\n`;
+  });
+  text += `━━━━━━━━━━━━━━━━━━━━\n`;
+  text += `Combined Odds: ${decimalToAmerican(combinedDec)}\n`;
+  text += `Win Probability: ${(combinedProb * 100).toFixed(1)}%\n`;
+  text += `Payout on $${bet}: $${(bet * combinedDec).toFixed(2)}\n`;
+
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Parlay copied to clipboard!'));
+}
+
+// Patch renderAll to also render parlay grid
+const _origRenderAll = renderAll;
+function renderAll() {
+  _origRenderAll();
+  renderParlayAddGrid();
 }
 
 // ═══════════════════════════════════════
