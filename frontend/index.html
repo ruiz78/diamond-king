@@ -1558,6 +1558,115 @@ body::before {
   gap: 12px;
 }
 
+
+/* ═══ GAME PROJECTION STYLES ═══ */
+.game-card.fav-away { border-color: rgba(61,214,140,0.3); }
+.game-card.fav-home { border-color: rgba(61,214,140,0.3); }
+
+.team-abbr.favorite {
+  color: var(--green) !important;
+  text-shadow: 0 0 12px rgba(61,214,140,0.4);
+}
+
+.team-abbr.underdog { color: var(--muted2); }
+
+.fav-badge {
+  display: inline-block;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+.fav-badge.fav {
+  background: rgba(61,214,140,0.15);
+  color: var(--green);
+  border: 1px solid rgba(61,214,140,0.3);
+}
+
+.fav-badge.dog {
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(232,69,74,0.3);
+}
+
+.game-proj-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 8px 0 4px;
+  display: flex;
+}
+
+.game-proj-fill-away {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), #2db87a);
+  border-radius: 6px 0 0 6px;
+  transition: width 0.6s ease;
+}
+
+.game-proj-fill-home {
+  height: 100%;
+  background: linear-gradient(90deg, #2db87a, var(--green));
+  border-radius: 0 6px 6px 0;
+  transition: width 0.6s ease;
+  margin-left: auto;
+}
+
+.game-proj-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted2);
+  margin-bottom: 8px;
+}
+
+.game-proj-labels span.winner { color: var(--green); }
+
+.game-pred-banner {
+  background: rgba(61,214,140,0.08);
+  border: 1px solid rgba(61,214,140,0.2);
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-pred-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.game-pred-conf {
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+.game-proj-ml {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.game-proj-ml-team { text-align: center; }
+.game-proj-ml-label { font-size: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.game-proj-ml-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.game-proj-ml-val.fav { color: var(--green); }
+.game-proj-ml-val.dog { color: var(--muted2); }
+.game-proj-ml-prob { font-size: 9px; color: var(--muted2); }
+
 /* ═══ GAME ODDS STYLES ═══ */
 .game-odds-row {
   display: grid;
@@ -1964,18 +2073,79 @@ function fmtOdds(o) { if(o===null||o===undefined) return '—'; return o>0?`+${o
 
 function edgeCls(edge) { return edge>0.04?'pos':edge<-0.04?'neg':'neu'; }
 
+// Win probability from records (Pythagorean expectation)
+function gameWinProb(g) {
+  const awayW=g.away_record_w||0, awayL=g.away_record_l||1;
+  const homeW=g.home_record_w||0, homeL=g.home_record_l||1;
+  const awayPct = awayW / Math.max(awayW+awayL, 1);
+  const homePct = homeW / Math.max(homeW+homeL, 1);
+  // Home field advantage ~4%
+  const homeAdj = 0.04;
+  const awayWP = Math.max(0.05, Math.min(0.95, (awayPct / (awayPct + homePct)) - homeAdj));
+  const homeWP = 1 - awayWP;
+  return { awayWP, homeWP };
+}
+
+// Convert win probability to fair moneyline
+function wpToML(wp) {
+  if (wp <= 0) return 0;
+  if (wp >= 1) return 0;
+  if (wp >= 0.5) return -Math.round(wp / (1-wp) * 100);
+  return Math.round((1-wp) / wp * 100);
+}
+
 function gameCardHTML(g) {
   const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '—';
   const odds = findGameOdds(g);
 
-  const awayW=g.away_record_w||0, awayL=g.away_record_l||1;
-  const homeW=g.home_record_w||0, homeL=g.home_record_l||1;
-  const awayPct=awayW/Math.max(awayW+awayL,1);
-  const homePct=homeW/Math.max(homeW+homeL,1);
-  const tot=awayPct+homePct||1;
-  const awayWP=awayPct/tot, homeWP=homePct/tot;
+  // Win probability projection
+  const {awayWP, homeWP} = gameWinProb(g);
+  const awayFav = awayWP > homeWP;
+  const favTeam = awayFav ? g.away_team_abbr : g.home_team_abbr;
+  const favWP   = awayFav ? awayWP : homeWP;
+  const dogWP   = awayFav ? homeWP : awayWP;
 
-  let oddsSection = `<div class="odds-loading">Click 💰 Load Odds to see moneyline & run line</div>`;
+  // Fair moneylines from model
+  const awayML = wpToML(awayWP);
+  const homeML = wpToML(homeWP);
+
+  // Confidence label
+  const confPct = Math.round(favWP * 100);
+  const confLabel = confPct >= 65 ? '🔥 Strong' : confPct >= 57 ? '✅ Lean' : '⚖️ Toss Up';
+
+  // Build projection section (always shown)
+  const projSection = `
+    <div style="border-top:1px solid var(--border);padding:10px 14px 4px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">🤖 Diamond King Projection</div>
+      <div class="game-proj-bar">
+        <div class="game-proj-fill-away" style="width:${Math.round(awayWP*100)}%;"></div>
+        <div class="game-proj-fill-home" style="width:${Math.round(homeWP*100)}%;margin-left:${Math.round(awayWP*100) === 100 ? 0 : 2}px;"></div>
+      </div>
+      <div class="game-proj-labels">
+        <span class="${awayFav ? 'winner' : ''}">${g.away_team_abbr} ${Math.round(awayWP*100)}%</span>
+        <span class="${!awayFav ? 'winner' : ''}">${Math.round(homeWP*100)}% ${g.home_team_abbr}</span>
+      </div>
+      <div class="game-pred-banner">
+        <div class="game-pred-text">👑 ${favTeam} to win</div>
+        <div class="game-pred-conf">${confLabel} · ${confPct}% confidence</div>
+      </div>
+      <div class="game-proj-ml">
+        <div class="game-proj-ml-team">
+          <div class="game-proj-ml-label">Fair ML</div>
+          <div class="game-proj-ml-val ${awayFav?'fav':'dog'}">${awayML>0?'+':''}${awayML}</div>
+          <div class="game-proj-ml-prob">${g.away_team_abbr}</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);align-self:center;">vs</div>
+        <div class="game-proj-ml-team">
+          <div class="game-proj-ml-label">Fair ML</div>
+          <div class="game-proj-ml-val ${!awayFav?'fav':'dog'}">${homeML>0?'+':''}${homeML}</div>
+          <div class="game-proj-ml-prob">${g.home_team_abbr}</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Odds section (shows after Load Odds)
+  let oddsSection = `<div class="odds-loading">Click 💰 Load Odds for live lines & edge</div>`;
 
   if (odds) {
     const calcEdge = (ml, wp) => {
@@ -1991,18 +2161,18 @@ function gameCardHTML(g) {
     oddsSection = `
       <div class="game-odds-row">
         <div class="game-odds-cell">
-          <div class="game-odds-label">💰 Moneyline</div>
+          <div class="game-odds-label">💰 Live Moneyline</div>
           <div class="game-odds-teams">
             <div class="game-odds-team">
               <div class="game-odds-abbr">${g.away_team_abbr}</div>
               <div class="game-odds-val">${fmtOdds(odds.ml_away)}</div>
-              <div class="game-odds-edge ${edgeCls(ae.edge)}">${ae.edge>0?'+':''}${(ae.edge*100).toFixed(1)}%</div>
+              <div class="game-odds-edge ${edgeCls(ae.edge)}">${ae.edge>0?'+':''}${(ae.edge*100).toFixed(1)}% edge</div>
             </div>
             <div class="game-odds-divider">vs</div>
             <div class="game-odds-team">
               <div class="game-odds-abbr">${g.home_team_abbr}</div>
               <div class="game-odds-val">${fmtOdds(odds.ml_home)}</div>
-              <div class="game-odds-edge ${edgeCls(he.edge)}">${he.edge>0?'+':''}${(he.edge*100).toFixed(1)}%</div>
+              <div class="game-odds-edge ${edgeCls(he.edge)}">${he.edge>0?'+':''}${(he.edge*100).toFixed(1)}% edge</div>
             </div>
           </div>
           <div class="game-odds-book">${odds.book}</div>
@@ -2028,20 +2198,22 @@ function gameCardHTML(g) {
   }
 
   return `
-    <div class="game-card">
+    <div class="game-card ${awayFav ? 'fav-away' : 'fav-home'}">
       <div class="game-header">
         <div class="game-time">${time} ET</div>
         <div class="game-status">${g.status || 'Scheduled'}</div>
       </div>
       <div class="game-matchup">
         <div class="team-block">
-          <div class="team-abbr">${g.away_team_abbr || '—'}</div>
+          <div class="team-abbr ${awayFav ? 'favorite' : 'underdog'}">${g.away_team_abbr || '—'}</div>
           <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
+          <div class="fav-badge ${awayFav ? 'fav' : 'dog'}">${awayFav ? '⭐ FAV' : 'DOG'}</div>
         </div>
         <div class="vs-divider">@</div>
         <div class="team-block">
-          <div class="team-abbr">${g.home_team_abbr || '—'}</div>
+          <div class="team-abbr ${!awayFav ? 'favorite' : 'underdog'}">${g.home_team_abbr || '—'}</div>
           <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
+          <div class="fav-badge ${!awayFav ? 'fav' : 'dog'}">${!awayFav ? '⭐ FAV' : 'DOG'}</div>
         </div>
       </div>
       <div class="game-pitchers">
@@ -2049,6 +2221,7 @@ function gameCardHTML(g) {
         <span>${g.home_pitcher_name || 'TBD'}</span>
       </div>
       <div class="game-venue">${g.venue || ''}</div>
+      ${projSection}
       ${oddsSection}
     </div>`;
 }
