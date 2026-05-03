@@ -861,10 +861,6 @@ body::before {
     <span class="nav-icon">🏟️</span>
     <span>Games</span>
   </div>
-  <div class="nav-item" onclick="showPage('livescores', this)" style="padding-left:36px;font-size:12px;opacity:0.85;">
-    <span class="nav-icon" style="font-size:9px;">🔴</span>
-    <span>Live Scores</span>
-  </div>
 
   <div class="nav-section">Projections</div>
   <div class="nav-item" onclick="showPage('pitchers', this)">
@@ -888,6 +884,10 @@ body::before {
   <div class="nav-item" onclick="showPage('parlay', this)">
     <span class="nav-icon">🎰</span>
     <span>Parlay Builder</span>
+  </div>
+  <div class="nav-item" onclick="showPage('straightbet', this)">
+    <span class="nav-icon">🎯</span>
+    <span>Straight Bet</span>
   </div>
 
   <div class="sidebar-footer">
@@ -1795,57 +1795,6 @@ body::before {
     </div>
   </div>
 
-  <!-- ══ PAGE: LIVE SCORES ══ -->
-  <div class="page" id="page-livescores" style="padding:28px 32px;">
-    <div class="section-header">
-      <div class="section-title" style="display:flex;align-items:center;gap:8px;">
-        <span style="width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block;animation:blink 1.5s infinite;"></span>
-        Live Scores
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <div id="live-last-refresh" style="font-size:11px;color:var(--muted);">Not yet refreshed</div>
-        <button class="refresh-btn" onclick="refreshLivePage()" style="font-size:11px;">
-          <span id="live-refresh-icon">⟳</span> Refresh Live
-        </button>
-        <div class="section-count" id="live-game-count">0 games</div>
-      </div>
-    </div>
-    <div class="live-tabs" style="margin-bottom:16px;">
-      <div class="live-tab active" onclick="switchLiveTab('scores', this)">🏟️ Live Scores</div>
-      <div class="live-tab" onclick="switchLiveTab('props', this)">💰 Live Props</div>
-    </div>
-    <div id="live-scores-tab">
-      <div class="games-live-grid" id="live-scores-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">📡</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch scores</div>
-        </div>
-      </div>
-    </div>
-    <div id="live-props-tab" style="display:none;">
-      <div class="section-header">
-        <div class="section-title">💰 Live Prop Lines</div>
-        <div class="section-count" id="live-prop-count">0 props</div>
-      </div>
-      <div class="filter-bar">
-        <input class="search-input" id="live-prop-search" placeholder="Search player..." oninput="filterLiveProps()">
-        <button class="sort-btn active" onclick="filterLivePropsByMarket('all', this)">All</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('pitcher_strikeouts', this)">⚾ K</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_home_runs', this)">💥 HR</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_hits', this)">🏏 Hits</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_rbis', this)">💪 RBI</button>
-      </div>
-      <div id="live-props-list">
-        <div style="text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">💰</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No prop data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch lines</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ══ PAGE: MONEYLINE ══ -->
   <div class="page" id="page-moneyline" style="padding:28px 32px;">
     <div class="section-header">
@@ -1874,6 +1823,24 @@ body::before {
     </div>
   </div>
 
+  <!-- ══ PAGE: STRAIGHT BET ══ -->
+  <div class="page" id="page-straightbet" style="padding:28px 32px;">
+    <div class="section-header">
+      <div class="section-title">🎯 Best Single Bets Today</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="font-size:11px;color:var(--muted);">Sorted by win probability · props, moneyline & spread</div>
+        <div class="section-count" id="straightbet-count">0 picks</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="straightbet-grid">
+      <div style="text-align:center;padding:48px;color:var(--muted);">
+        <div style="font-size:32px;margin-bottom:12px;">🎯</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">Loading picks...</div>
+        <div style="font-size:12px;">Load data and odds first for best results</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -1895,16 +1862,37 @@ let state = {
 //  NAVIGATION
 // ═══════════════════════════════════════
 const pageTitles = {
-  dashboard:  'Dashboard',
-  edges:      'Royal Picks',
-  games:      'Games',
-  livescores: 'Live Scores',
-  pitchers:   'Pitcher Projections',
-  batters:    'Batter Projections',
-  moneyline:  'Moneyline Predictions',
-  spread:     'Spread Predictions',
-  parlay:     'Parlay Builder',
+  dashboard:   'Dashboard',
+  edges:       'Royal Picks',
+  games:       'Games',
+  pitchers:    'Pitcher Projections',
+  batters:     'Batter Projections',
+  moneyline:   'Moneyline Predictions',
+  spread:      'Spread Predictions',
+  parlay:      'Parlay Builder',
+  straightbet: 'Straight Bet',
 };
+
+function isEdgeGameFinal(e) {
+  const ls = liveScores[e.game_pk];
+  return ls && ls.abstract_state === 'Final';
+}
+
+function isGameFinal(g) {
+  const ls = liveScores[g.game_pk];
+  return ls && ls.abstract_state === 'Final';
+}
+
+function isTeamGameFinal(teamAbbr) {
+  if (!teamAbbr) return false;
+  const abbr = teamAbbr.trim().toUpperCase();
+  return state.games.some(g => {
+    const ls = liveScores[g.game_pk];
+    if (!ls || ls.abstract_state !== 'Final') return false;
+    return (g.away_team_abbr||'').toUpperCase() === abbr ||
+           (g.home_team_abbr||'').toUpperCase() === abbr;
+  });
+}
 
 function showPage(id, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1912,32 +1900,23 @@ function showPage(id, el) {
   document.getElementById('page-' + id).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('pageTitle').textContent = pageTitles[id] || id;
-  if (id === 'livescores') refreshLivePage();
-  if (id === 'moneyline')  renderMoneyline();
-  if (id === 'spread')     renderSpread();
-}
-
-async function refreshLivePage() {
-  document.getElementById('live-refresh-icon').textContent = '⟳';
-  await fetchLiveScores();
-  document.getElementById('live-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  renderLiveScores();
+  if (id === 'moneyline')   renderMoneyline();
+  if (id === 'spread')      renderSpread();
+  if (id === 'straightbet') renderStraightBet();
 }
 
 function renderMoneyline() {
-  const grid = document.getElementById('moneyline-grid');
-  const games = state.games;
+  const grid  = document.getElementById('moneyline-grid');
+  const games = state.games.filter(g => !isGameFinal(g));
   document.getElementById('ml-game-count').textContent = games.length + ' games';
-  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No upcoming games</div>'; return; }
+  const fairML = wp => wp > 0 ? Math.round(wp >= 0.5 ? -(wp*100)/(1-wp) : (1-wp)*100/wp) : 0;
   grid.innerHTML = games.map(g => {
     const {awayWP, homeWP} = gameWinProb(g);
     const odds = findGameOdds(g);
     const awayFav = awayWP >= homeWP;
-    const fairAway = awayWP > 0 ? Math.round(awayWP >= 0.5 ? -(awayWP*100)/(1-awayWP) : (1-awayWP)*100/awayWP) : 0;
-    const fairHome = homeWP > 0 ? Math.round(homeWP >= 0.5 ? -(homeWP*100)/(1-homeWP) : (1-homeWP)*100/homeWP) : 0;
     const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : '';
-    return `
-    <div class="game-card" style="padding:16px 20px;">
+    return `<div class="game-card" style="padding:16px 20px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
         <span style="font-size:11px;color:var(--muted);">${time}</span>
         <span style="font-size:10px;color:var(--muted);">${g.venue||''}</span>
@@ -1948,7 +1927,7 @@ function renderMoneyline() {
           <div style="font-size:10px;color:var(--muted);">${g.away_record_w}-${g.away_record_l}</div>
           <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${awayFav?'var(--green)':'var(--text)'};">${Math.round(awayWP*100)}%</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_away>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_away):'—'}</div>
-          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairAway)}</div>
+          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairML(awayWP))}</div>
         </div>
         <div style="text-align:center;font-size:11px;color:var(--muted);">@</div>
         <div style="text-align:right;">
@@ -1956,7 +1935,7 @@ function renderMoneyline() {
           <div style="font-size:10px;color:var(--muted);">${g.home_record_w}-${g.home_record_l}</div>
           <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${!awayFav?'var(--green)':'var(--text)'};">${Math.round(homeWP*100)}%</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_home>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_home):'—'}</div>
-          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairHome)}</div>
+          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairML(homeWP))}</div>
         </div>
       </div>
       <div style="margin-top:10px;">
@@ -1974,10 +1953,10 @@ function renderMoneyline() {
 }
 
 function renderSpread() {
-  const grid = document.getElementById('spread-grid');
-  const games = state.games;
+  const grid  = document.getElementById('spread-grid');
+  const games = state.games.filter(g => !isGameFinal(g));
   document.getElementById('spread-game-count').textContent = games.length + ' games';
-  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No upcoming games</div>'; return; }
   grid.innerHTML = games.map(g => {
     const {awayWP, homeWP} = gameWinProb(g);
     const odds = findGameOdds(g);
@@ -1985,8 +1964,7 @@ function renderSpread() {
     const awayRL = awayFav ? -1.5 : 1.5;
     const homeRL = awayFav ? 1.5 : -1.5;
     const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : '';
-    return `
-    <div class="game-card" style="padding:16px 20px;">
+    return `<div class="game-card" style="padding:16px 20px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
         <span style="font-size:11px;color:var(--muted);">${time}</span>
         <span style="font-size:10px;color:var(--muted);">${g.venue||''}</span>
@@ -2015,6 +1993,72 @@ function renderSpread() {
         </div>
       </div>
       ${!odds?'<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;">Load Odds for live run line</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function renderStraightBet() {
+  const grid = document.getElementById('straightbet-grid');
+  if (!grid) return;
+  const picks = [];
+
+  // Player props
+  dedupEdges(state.edges).filter(e => !isEdgeGameFinal(e)).forEach(e => {
+    picks.push({
+      type:'prop', prob: parseFloat(e.win_prob_pct)||0,
+      label:`${e.player_name} — ${e.bet_type} ${e.line} ${e.stat_label}`,
+      sublabel:`Best line @ ${e.book} · ${e.odds>0?'+':''}${e.odds}`,
+      proj:e.model_proj, rating:e.rating, icon:'⭐', badgeColor:'var(--gold)', badge:'🎯 Prop'
+    });
+  });
+
+  // Moneyline + Spread
+  state.games.filter(g => !isGameFinal(g)).forEach(g => {
+    const {awayWP, homeWP} = gameWinProb(g);
+    const odds = findGameOdds(g);
+    const awayFav = awayWP >= homeWP;
+    const favTeam = awayFav ? g.away_team_abbr : g.home_team_abbr;
+    const dogTeam = awayFav ? g.home_team_abbr : g.away_team_abbr;
+    const favWP   = Math.max(awayWP, homeWP);
+    const favML   = awayFav ? odds?.ml_away : odds?.ml_home;
+    picks.push({
+      type:'moneyline', prob: Math.round(favWP*100),
+      label:`${favTeam} Moneyline`, sublabel:`vs ${dogTeam} · ${odds?fmtOdds(favML):'Load odds'}`,
+      proj:null, rating: favWP>=0.60?'ROYAL':favWP>=0.54?'HIGH':'', icon:'💰', badgeColor:'#4fc3f7', badge:'💰 ML'
+    });
+    const dogWP  = Math.min(awayWP, homeWP);
+    const rlOdds = awayFav ? odds?.spread_home : odds?.spread_away;
+    if (rlOdds) picks.push({
+      type:'spread', prob: Math.round(Math.min((dogWP+0.15)*100, 65)),
+      label:`${dogTeam} +1.5 Run Line`, sublabel:`vs ${favTeam} · ${fmtOdds(rlOdds)}`,
+      proj:null, rating:'', icon:'📊', badgeColor:'#ce93d8', badge:'📊 RL'
+    });
+  });
+
+  picks.sort((a,b) => b.prob - a.prob);
+  document.getElementById('straightbet-count').textContent = picks.length + ' picks';
+
+  if (!picks.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);"><div style="font-size:32px;margin-bottom:12px;">🎯</div><div style="font-family:\'Cinzel\',serif;font-size:14px;color:var(--gold);">No picks yet — load data & odds first</div></div>';
+    return;
+  }
+  grid.innerHTML = picks.map(p => {
+    const tier = p.rating?.includes('ROYAL')?'royal':p.rating?.includes('HIGH')?'high':'medium';
+    return `<div class="edge-card ${tier}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${p.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="edge-player">${p.label}</div>
+          <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.3);color:${p.badgeColor};border:1px solid ${p.badgeColor}33;">${p.badge}</span>
+        </div>
+        <div class="edge-prop" style="color:var(--green);font-weight:700;">${p.sublabel}</div>
+        ${p.proj?`<div class="edge-book">Best line · <span style="color:var(--green);font-weight:700;">Proj: ${p.proj}</span></div>`:''}
+      </div>
+      <div class="edge-right" style="text-align:right;flex-shrink:0;">
+        <div class="edge-prob" style="font-size:${p.prob>=70?'28px':'24px'};color:${p.prob>=65?'var(--green)':p.prob>=55?'var(--gold)':'var(--muted2)'};">${p.prob}%</div>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Win Prob</div>
+        ${p.rating?.includes('ROYAL')?'<div class="edge-badge royal">ROYAL</div>':p.rating?.includes('HIGH')?'<div class="edge-badge high">HIGH</div>':''}
+      </div>
     </div>`;
   }).join('');
 }
