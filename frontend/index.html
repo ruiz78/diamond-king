@@ -2048,7 +2048,7 @@ function renderStraightBet() {
       <div style="width:44px;height:44px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${p.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div class="edge-player">${p.label}${p.type==='prop'?teamBadge(p.label.split(' — ')[0]):''}</div>
+          <div class="edge-player">${p.label}</div>
           <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.3);color:${p.badgeColor};border:1px solid ${p.badgeColor}33;">${p.badge}</span>
         </div>
         <div class="edge-prop" style="color:var(--green);font-weight:700;">${p.sublabel}</div>
@@ -2111,18 +2111,71 @@ function showEmptyState() {
 let playerTeamMap = {};
 function buildPlayerTeamMap() {
   playerTeamMap = {};
+
+  // Build venue → {away_abbr, home_abbr} and opp_team → team lookup from games
+  const venueToTeams = {};
+  const oppToTeam    = {};
   state.games.forEach(g => {
+    if (g.venue) {
+      const v = g.venue.toLowerCase();
+      venueToTeams[v] = { home: g.home_team_abbr, away: g.away_team_abbr };
+    }
+    if (g.away_team_abbr && g.home_team_abbr) {
+      oppToTeam[g.away_team_abbr.toUpperCase()] = g.home_team_abbr; // away's opp is home
+      oppToTeam[g.home_team_abbr.toUpperCase()] = g.away_team_abbr; // home's opp is away
+    }
+    // Map pitcher names directly to their team
     if (g.away_pitcher_name) playerTeamMap[g.away_pitcher_name.trim().toLowerCase()] = g.away_team_abbr;
     if (g.home_pitcher_name) playerTeamMap[g.home_pitcher_name.trim().toLowerCase()] = g.home_team_abbr;
   });
-  state.edges.forEach(e => { if (e.team && e.player_name) playerTeamMap[e.player_name.trim().toLowerCase()] = e.team; });
-  state.batters.forEach(b => { if (b.team && b.player_name) playerTeamMap[b.player_name.trim().toLowerCase()] = b.team; });
-  state.pitchers.forEach(p => { if (p.team && p.player_name) playerTeamMap[p.player_name.trim().toLowerCase()] = p.team; });
+
+  // Map batters using venue + batting_order side logic
+  // Batters play at the venue — home batters play AT their venue, away batters visit
+  // We use opp_pitcher_hand as a proxy won't tell us team, so use venue + batting_order
+  // Better: batters have opp_team in some API versions — try that first, fallback to venue
+  state.batters.forEach(b => {
+    if (!b.player_name) return;
+    const key = b.player_name.trim().toLowerCase();
+    if (b.team) { playerTeamMap[key] = b.team; return; }
+    // Use opp_team field if present
+    if (b.opp_team) {
+      // batter's team is whoever isn't the opp
+      const opp = b.opp_team.trim().toUpperCase();
+      const team = oppToTeam[opp];
+      if (team) { playerTeamMap[key] = team; return; }
+    }
+    // Fallback: venue → home team (batters listed at their home venue are home team)
+    if (b.venue) {
+      const teams = venueToTeams[b.venue.toLowerCase()];
+      if (teams) playerTeamMap[key] = teams.home;
+    }
+  });
+
+  // Map edges — edges often have team field or we can match via playerTeamMap already built
+  state.edges.forEach(e => {
+    if (!e.player_name) return;
+    const key = e.player_name.trim().toLowerCase();
+    if (playerTeamMap[key]) return; // already mapped
+    if (e.team) playerTeamMap[key] = e.team;
+  });
+
+  // Map pitchers using opp_team → derive their team
+  state.pitchers.forEach(p => {
+    if (!p.player_name) return;
+    const key = p.player_name.trim().toLowerCase();
+    if (playerTeamMap[key]) return; // already mapped from games
+    if (p.team) { playerTeamMap[key] = p.team; return; }
+    if (p.opp_team) {
+      const opp = p.opp_team.trim().toUpperCase();
+      const team = oppToTeam[opp];
+      if (team) playerTeamMap[key] = team;
+    }
+  });
 }
 
 function teamBadge(name) {
   const t = playerTeamMap[name?.trim().toLowerCase()];
-  return t ? ` <span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>` : '';
+  return t ? ` <span style="font-size:10px;font-weight:700;color:var(--muted2);background:var(--card2);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>` : '';
 }
 
 function renderAll() {
@@ -2508,7 +2561,7 @@ function pitcherRowHTML(p) {
         <div class="player-cell">
           <div class="player-dot">⚾</div>
           <div>
-            <div class="player-name-cell">${p.player_name}${teamBadge(p.player_name)}</div>
+            <div class="player-name-cell">${p.player_name}</div>
             <div class="player-team-cell">${p.pitch_hand || 'R'}HP · ${p.venue || ''}</div>
           </div>
         </div>
