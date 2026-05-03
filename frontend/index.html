@@ -2521,21 +2521,20 @@ function pitcherRowHTML(p) {
 }
 
 function renderPitchers(list) {
-  // Build set of today's active team abbrs (not Final)
+  // Build today's active team abbrs and venue names from the game slate
   const todayTeams = new Set();
+  const todayVenues = new Set();
   state.games.forEach(g => {
     if (!isGameFinal(g)) {
       todayTeams.add((g.away_team_abbr||'').toUpperCase());
       todayTeams.add((g.home_team_abbr||'').toUpperCase());
+      if (g.venue) todayVenues.add(g.venue.toLowerCase());
     }
   });
-  const all = (list || state.pitchers).filter(p => {
-    // If we have today's games loaded, only show pitchers whose opp is in today's slate
-    if (todayTeams.size > 0) {
-      return todayTeams.has((p.opp_team||'').toUpperCase());
-    }
-    return true;
-  });
+  const src = list || state.pitchers;
+  const all = todayTeams.size > 0
+    ? src.filter(p => todayTeams.has((p.opp_team||'').toUpperCase()) || todayVenues.has((p.venue||'').toLowerCase()))
+    : src;
   const pitchers = all.slice().sort((a,b) => (b[state.pitcherSort]||0) - (a[state.pitcherSort]||0));
   document.getElementById('pitcher-count-badge').textContent = pitchers.length + ' pitchers';
   document.getElementById('pitcher-tbody').innerHTML = pitchers.length
@@ -2583,20 +2582,15 @@ function batterRowHTML(b) {
 }
 
 function renderBatters(list) {
-  // Build set of today's active team abbrs (not Final)
-  const todayTeams = new Set();
+  // Filter by venue — batters have a venue field that matches the game venue
+  const todayVenues = new Set();
   state.games.forEach(g => {
-    if (!isGameFinal(g)) {
-      todayTeams.add((g.away_team_abbr||'').toUpperCase());
-      todayTeams.add((g.home_team_abbr||'').toUpperCase());
-    }
+    if (!isGameFinal(g) && g.venue) todayVenues.add(g.venue.toLowerCase());
   });
-  const all = (list || state.batters).filter(b => {
-    if (todayTeams.size > 0) {
-      return todayTeams.has((b.opp_team||'').toUpperCase());
-    }
-    return true;
-  });
+  const src = list || state.batters;
+  const all = todayVenues.size > 0
+    ? src.filter(b => todayVenues.has((b.venue||'').toLowerCase()))
+    : src;
   const batters = all.slice().sort((a,b) => (b[state.batterSort]||0) - (a[state.batterSort]||0));
   document.getElementById('batter-count-badge').textContent = batters.length + ' batters';
   document.getElementById('batter-tbody').innerHTML = batters.length
@@ -2619,9 +2613,8 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
-  const d = new Date(meta.date);
   document.getElementById('todayDate').textContent =
-    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
+    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
