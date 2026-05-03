@@ -2521,7 +2521,22 @@ function pitcherRowHTML(p) {
 }
 
 function renderPitchers(list) {
-  const pitchers = (list || state.pitchers).slice().sort((a,b) => (b[state.pitcherSort]||0) - (a[state.pitcherSort]||0));
+  // Build set of today's active team abbrs (not Final)
+  const todayTeams = new Set();
+  state.games.forEach(g => {
+    if (!isGameFinal(g)) {
+      todayTeams.add((g.away_team_abbr||'').toUpperCase());
+      todayTeams.add((g.home_team_abbr||'').toUpperCase());
+    }
+  });
+  const all = (list || state.pitchers).filter(p => {
+    // If we have today's games loaded, only show pitchers whose opp is in today's slate
+    if (todayTeams.size > 0) {
+      return todayTeams.has((p.opp_team||'').toUpperCase());
+    }
+    return true;
+  });
+  const pitchers = all.slice().sort((a,b) => (b[state.pitcherSort]||0) - (a[state.pitcherSort]||0));
   document.getElementById('pitcher-count-badge').textContent = pitchers.length + ' pitchers';
   document.getElementById('pitcher-tbody').innerHTML = pitchers.length
     ? pitchers.map(pitcherRowHTML).join('')
@@ -2568,7 +2583,21 @@ function batterRowHTML(b) {
 }
 
 function renderBatters(list) {
-  const batters = (list || state.batters).slice().sort((a,b) => (b[state.batterSort]||0) - (a[state.batterSort]||0));
+  // Build set of today's active team abbrs (not Final)
+  const todayTeams = new Set();
+  state.games.forEach(g => {
+    if (!isGameFinal(g)) {
+      todayTeams.add((g.away_team_abbr||'').toUpperCase());
+      todayTeams.add((g.home_team_abbr||'').toUpperCase());
+    }
+  });
+  const all = (list || state.batters).filter(b => {
+    if (todayTeams.size > 0) {
+      return todayTeams.has((b.opp_team||'').toUpperCase());
+    }
+    return true;
+  });
+  const batters = all.slice().sort((a,b) => (b[state.batterSort]||0) - (a[state.batterSort]||0));
   document.getElementById('batter-count-badge').textContent = batters.length + ' batters';
   document.getElementById('batter-tbody').innerHTML = batters.length
     ? batters.map(batterRowHTML).join('')
@@ -2590,9 +2619,9 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
-  // Always show today's actual date, not the API's data date
+  const d = new Date(meta.date);
   document.getElementById('todayDate').textContent =
-    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
