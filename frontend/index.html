@@ -27,8 +27,8 @@
   --gold-glow: rgba(200,164,74,0.25);
   --red:       #e8454a;
   --red-dim:   rgba(232,69,74,0.15);
-  --blue:      #4a8fe8;
-  --blue-dim:  rgba(74,143,232,0.15);
+  --blue:      #2979ff;
+  --blue-dim:  rgba(41,121,255,0.15);
   --green:     #3dd68c;
   --green-dim: rgba(61,214,140,0.15);
   --orange:    #f07846;
@@ -1622,8 +1622,8 @@ body::before {
 
 .game-proj-fill-grey {
   height: 100%;
-  background: var(--muted);
-  opacity: 0.5;
+  background: linear-gradient(90deg, #2979ff, #448aff);
+  opacity: 0.85;
   border-radius: 0 6px 6px 0;
   transition: width 0.6s ease;
 }
@@ -2174,7 +2174,7 @@ function dedupEdges(edges) {
       best[key] = e;
     }
   }
-  return Object.values(best).sort((a, b) => (parseFloat(b.win_prob_pct)||0) - (parseFloat(a.win_prob_pct)||0));
+  return Object.values(best).sort((a, b) => b.edge - a.edge);
 }
 
 function renderEdges() {
