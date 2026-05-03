@@ -2504,7 +2504,7 @@ function pitcherRowHTML(p) {
           <div class="player-dot">⚾</div>
           <div>
             <div class="player-name-cell">${p.player_name}</div>
-            <div class="player-team-cell">${p.pitch_hand || 'R'}HP · ${p.venue || ''}</div>
+            <div class="player-team-cell">${p.pitch_hand || 'R'}HP · ${playerTeamMap[p.player_name?.trim().toLowerCase()] || p.team || p.venue || ''}</div>
           </div>
         </div>
       </td>
@@ -2521,21 +2521,7 @@ function pitcherRowHTML(p) {
 }
 
 function renderPitchers(list) {
-  // Build today's active team abbrs and venue names from the game slate
-  const todayTeams = new Set();
-  const todayVenues = new Set();
-  state.games.forEach(g => {
-    if (!isGameFinal(g)) {
-      todayTeams.add((g.away_team_abbr||'').toUpperCase());
-      todayTeams.add((g.home_team_abbr||'').toUpperCase());
-      if (g.venue) todayVenues.add(g.venue.toLowerCase());
-    }
-  });
-  const src = list || state.pitchers;
-  const all = todayTeams.size > 0
-    ? src.filter(p => todayTeams.has((p.opp_team||'').toUpperCase()) || todayVenues.has((p.venue||'').toLowerCase()))
-    : src;
-  const pitchers = all.slice().sort((a,b) => (b[state.pitcherSort]||0) - (a[state.pitcherSort]||0));
+  const pitchers = (list || state.pitchers).slice().sort((a,b) => (b[state.pitcherSort]||0) - (a[state.pitcherSort]||0));
   document.getElementById('pitcher-count-badge').textContent = pitchers.length + ' pitchers';
   document.getElementById('pitcher-tbody').innerHTML = pitchers.length
     ? pitchers.map(pitcherRowHTML).join('')
@@ -2564,7 +2550,7 @@ function batterRowHTML(b) {
           <div class="player-dot">🏏</div>
           <div>
             <div class="player-name-cell">${b.player_name}</div>
-            <div class="player-team-cell">#${b.batting_order || '?'} · ${b.bat_side || 'R'}HB · ${b.venue || ''}</div>
+            <div class="player-team-cell">#${b.batting_order || '?'} · ${b.bat_side || 'R'}HB · ${playerTeamMap[b.player_name?.trim().toLowerCase()] || b.team || b.venue || ''}</div>
           </div>
         </div>
       </td>
@@ -2582,16 +2568,7 @@ function batterRowHTML(b) {
 }
 
 function renderBatters(list) {
-  // Filter by venue — batters have a venue field that matches the game venue
-  const todayVenues = new Set();
-  state.games.forEach(g => {
-    if (!isGameFinal(g) && g.venue) todayVenues.add(g.venue.toLowerCase());
-  });
-  const src = list || state.batters;
-  const all = todayVenues.size > 0
-    ? src.filter(b => todayVenues.has((b.venue||'').toLowerCase()))
-    : src;
-  const batters = all.slice().sort((a,b) => (b[state.batterSort]||0) - (a[state.batterSort]||0));
+  const batters = (list || state.batters).slice().sort((a,b) => (b[state.batterSort]||0) - (a[state.batterSort]||0));
   document.getElementById('batter-count-badge').textContent = batters.length + ' batters';
   document.getElementById('batter-tbody').innerHTML = batters.length
     ? batters.map(batterRowHTML).join('')
@@ -2613,8 +2590,9 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
+  const d = new Date(meta.date);
   document.getElementById('todayDate').textContent =
-    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
