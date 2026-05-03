@@ -862,7 +862,7 @@ body::before {
     <span>Games</span>
   </div>
   <div class="nav-item" onclick="showPage('livescores', this)" style="padding-left:36px;font-size:12px;opacity:0.85;">
-    <span class="nav-icon" style="font-size:8px;">🔴</span>
+    <span class="nav-icon" style="font-size:9px;">🔴</span>
     <span>Live Scores</span>
   </div>
 
@@ -1722,58 +1722,6 @@ body::before {
 .odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
 </style>
 
-        <div class="live-refresh-time" id="live-last-refresh">Not yet refreshed</div>
-      </div>
-      <button class="live-refresh-btn" onclick="refreshLiveData()">
-        <span id="live-refresh-icon">⟳</span> Refresh Live
-      </button>
-    </div>
-
-    <!-- Live / Scheduled tabs -->
-    <div class="live-tabs">
-      <div class="live-tab active" onclick="switchLiveTab('scores', this)">🏟️ Live Scores</div>
-      <div class="live-tab" onclick="switchLiveTab('props', this)">💰 Live Props</div>
-    </div>
-
-    <!-- SCORES TAB -->
-    <div id="live-scores-tab">
-      <div class="section-header">
-        <div class="section-title">🔴 Games</div>
-        <div class="section-count" id="live-game-count">0 games</div>
-      </div>
-      <div class="games-live-grid" id="live-scores-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">📡</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current scores</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROPS TAB -->
-    <div id="live-props-tab" style="display:none;">
-      <div class="section-header">
-        <div class="section-title">💰 Live Prop Lines</div>
-        <div class="section-count" id="live-prop-count">0 props</div>
-      </div>
-      <div class="filter-bar">
-        <input class="search-input" id="live-prop-search" placeholder="Search player..." oninput="filterLiveProps()">
-        <button class="sort-btn active" onclick="filterLivePropsByMarket('all', this)">All</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('pitcher_strikeouts', this)">⚾ K</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_home_runs', this)">💥 HR</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_hits', this)">🏏 Hits</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_rbis', this)">💪 RBI</button>
-      </div>
-      <div id="live-props-list">
-        <div style="text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">💰</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No prop data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current lines</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
   <div class="page" id="page-parlay" style="padding:28px 32px;">
 
     <!-- TOP BAR: Quick build + toggle -->
@@ -1855,14 +1803,14 @@ body::before {
         Live Scores
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <div id="live-last-refresh" style="font-size:11px;color:var(--muted);">Not yet refreshed</div>
+        <div id="ls-last-refresh" style="font-size:11px;color:var(--muted);">Not yet refreshed</div>
         <button class="refresh-btn" onclick="refreshLivePage()" style="font-size:11px;">
-          <span id="live-refresh-icon">⟳</span> Refresh Live
+          <span id="ls-refresh-icon">⟳</span> Refresh Live
         </button>
-        <div class="section-count" id="live-game-count">0 games</div>
+        <div class="section-count" id="ls-game-count">0 games</div>
       </div>
     </div>
-    <div class="games-live-grid" id="live-scores-grid">
+    <div class="games-live-grid" id="ls-scores-grid">
       <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">📡</div>
         <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
@@ -1880,7 +1828,7 @@ body::before {
     <div id="moneyline-grid" style="display:flex;flex-direction:column;gap:10px;">
       <div style="text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">💰</div>
-        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">Loading predictions...</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
       </div>
     </div>
   </div>
@@ -1894,7 +1842,7 @@ body::before {
     <div id="spread-grid" style="display:flex;flex-direction:column;gap:10px;">
       <div style="text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">📊</div>
-        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">Loading predictions...</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
       </div>
     </div>
   </div>
@@ -1943,40 +1891,79 @@ function showPage(id, el) {
 }
 
 async function refreshLivePage() {
-  document.getElementById('live-refresh-icon').textContent = '⟳';
+  document.getElementById('ls-refresh-icon').textContent = '⟳';
   await fetchLiveScores();
-  document.getElementById('live-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  renderLiveScores();
+  const count = liveState.games?.length || 0;
+  document.getElementById('ls-game-count').textContent = count + ' games';
+  document.getElementById('ls-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  // Render into the livescores page grid
+  const grid = document.getElementById('ls-scores-grid');
+  if (!liveState.games?.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);"><div style="font-size:32px;margin-bottom:12px;">📡</div><div style="font-size:12px;">No games found</div></div>`;
+    return;
+  }
+  grid.innerHTML = liveState.games.map(g => {
+    const isLive = g.abstract_state === 'Live';
+    const isFinal = g.abstract_state === 'Final';
+    const awayWin = g.away_score > g.home_score;
+    const homeWin = g.home_score > g.away_score;
+    const statusText = isLive ? `🔴 LIVE · ${g.inning_half} ${g.inning}` : isFinal ? 'FINAL' : new Date(g.game_time||'').toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET';
+    return `
+    <div class="live-score-card ${isLive?'in-progress':''}">
+      <div class="live-score-header">
+        <div class="live-venue">${g.venue||''}</div>
+        <div class="live-game-status ${isLive?'live':isFinal?'final':'scheduled'}">${statusText}</div>
+      </div>
+      <div class="live-score-body">
+        <div class="live-team away">
+          <div class="live-team-abbr">${g.away_team_abbr}</div>
+          <div class="live-team-info"><div class="live-team-name">${g.away_team_name}</div><div class="live-team-record">${g.away_record_w}-${g.away_record_l}</div></div>
+        </div>
+        <div class="live-score-center">
+          <div class="live-score-display">
+            <div class="live-score-num ${awayWin?'winning':homeWin?'losing':''}">${g.away_score??'—'}</div>
+            <div class="live-score-dash">—</div>
+            <div class="live-score-num ${homeWin?'winning':awayWin?'losing':''}">${g.home_score??'—'}</div>
+          </div>
+        </div>
+        <div class="live-team home">
+          <div class="live-team-abbr">${g.home_team_abbr}</div>
+          <div class="live-team-info"><div class="live-team-name">${g.home_team_name}</div><div class="live-team-record">${g.home_record_w}-${g.home_record_l}</div></div>
+        </div>
+      </div>
+      ${renderLineScore(g)}
+    </div>`;
+  }).join('');
 }
 
 function renderMoneyline() {
   const grid = document.getElementById('moneyline-grid');
   const games = state.games;
   document.getElementById('ml-game-count').textContent = games.length + ' games';
-  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded</div>'; return; }
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
   grid.innerHTML = games.map(g => {
     const {awayWP, homeWP} = gameWinProb(g);
     const odds = findGameOdds(g);
     const awayFav = awayWP >= homeWP;
     return `
     <div class="game-card" style="padding:16px 20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:11px;color:var(--muted);">${g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : ''}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--muted);">${g.game_time?new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':''}</div>
         <div style="font-size:10px;color:var(--muted);">${g.venue||''}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;">
-        <div style="text-align:left;">
-          <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
           <div style="font-size:10px;color:var(--muted);">${g.away_record_w}-${g.away_record_l}</div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${awayFav?'var(--green)':'var(--text)'};">${Math.round(awayWP*100)}%</span></div>
-          ${odds ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${odds.ml_away>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.ml_away)}</div><div style="font-size:9px;color:var(--muted);">Fair ML: ${fmtOdds(Math.round(awayWP>0?-awayWP*100/(1-awayWP):0))}</div>` : '<div style="font-size:11px;color:var(--muted);">Load odds for line</div>'}
+          <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${awayFav?'var(--green)':'var(--text)'};">${Math.round(awayWP*100)}%</span></div>
+          ${odds?`<div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds.ml_away>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.ml_away)}</div>`:'<div style="font-size:11px;color:var(--muted);">Load Odds for line</div>'}
         </div>
-        <div style="text-align:center;font-size:12px;color:var(--muted);">@</div>
+        <div style="text-align:center;font-size:13px;color:var(--muted);">@</div>
         <div style="text-align:right;">
-          <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
           <div style="font-size:10px;color:var(--muted);">${g.home_record_w}-${g.home_record_l}</div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${!awayFav?'var(--green)':'var(--text)'};">${Math.round(homeWP*100)}%</span></div>
-          ${odds ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${odds.ml_home>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.ml_home)}</div><div style="font-size:9px;color:var(--muted);">Fair ML: ${fmtOdds(Math.round(homeWP>0?-homeWP*100/(1-homeWP):0))}</div>` : ''}
+          <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${!awayFav?'var(--green)':'var(--text)'};">${Math.round(homeWP*100)}%</span></div>
+          ${odds?`<div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds.ml_home>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.ml_home)}</div>`:''}
         </div>
       </div>
       <div style="margin-top:12px;">
@@ -1984,13 +1971,13 @@ function renderMoneyline() {
           <div class="${awayFav?'game-proj-fill-green':'game-proj-fill-grey'}" style="width:${Math.round(awayWP*100)}%;border-radius:6px 0 0 6px;"></div>
           <div class="${!awayFav?'game-proj-fill-green':'game-proj-fill-grey'}" style="width:${Math.round(homeWP*100)}%;border-radius:0 6px 6px 0;"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--muted2);">
+        <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;">
           <span style="color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr} ${Math.round(awayWP*100)}%</span>
           <span style="color:${!awayFav?'var(--green)':'var(--muted2)'};">${Math.round(homeWP*100)}% ${g.home_team_abbr}</span>
         </div>
       </div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);">
-        🏆 Diamond King picks: <span style="color:var(--gold);font-weight:700;">${awayFav?g.away_team_abbr:g.home_team_abbr} to win</span>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
+        🏆 Pick: <span style="color:var(--gold);font-weight:700;">${awayFav?g.away_team_abbr:g.home_team_abbr} to win</span>
       </div>
     </div>`;
   }).join('');
@@ -2000,31 +1987,30 @@ function renderSpread() {
   const grid = document.getElementById('spread-grid');
   const games = state.games;
   document.getElementById('spread-game-count').textContent = games.length + ' games';
-  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded</div>'; return; }
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
   grid.innerHTML = games.map(g => {
     const {awayWP, homeWP} = gameWinProb(g);
     const odds = findGameOdds(g);
     const awayFav = awayWP >= homeWP;
-    // Run line is typically -1.5 for fav, +1.5 for dog
-    const awayRL  = awayFav ? -1.5 : 1.5;
-    const homeRL  = awayFav ? 1.5 : -1.5;
+    const awayRL = awayFav ? -1.5 : 1.5;
+    const homeRL = awayFav ? 1.5 : -1.5;
     return `
     <div class="game-card" style="padding:16px 20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:11px;color:var(--muted);">${g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : ''}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--muted);">${g.game_time?new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':''}</div>
         <div style="font-size:10px;color:var(--muted);">${g.venue||''}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;">
-        <div style="text-align:left;">
-          <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${awayRL>0?'+':''}${awayRL}</span></div>
-          ${odds ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${odds.spread_away>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.spread_away)}</div>` : '<div style="font-size:11px;color:var(--muted);">Load odds for line</div>'}
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${awayRL>0?'+':''}${awayRL}</span></div>
+          ${odds?`<div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${(odds.spread_away||0)>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.spread_away)}</div>`:'<div style="font-size:11px;color:var(--muted);">Load Odds for line</div>'}
         </div>
-        <div style="text-align:center;font-size:12px;color:var(--muted);">@</div>
+        <div style="text-align:center;font-size:13px;color:var(--muted);">@</div>
         <div style="text-align:right;">
-          <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${homeRL>0?'+':''}${homeRL}</span></div>
-          ${odds ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:${odds.spread_home>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.spread_home)}</div>` : ''}
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${homeRL>0?'+':''}${homeRL}</span></div>
+          ${odds?`<div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${(odds.spread_home||0)>0?'var(--green)':'var(--text)'};">${fmtOdds(odds.spread_home)}</div>`:''}
         </div>
       </div>
       <div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border);">
@@ -2032,11 +2018,11 @@ function renderSpread() {
         <div style="display:flex;gap:8px;">
           <div style="flex:1;background:${awayFav?'rgba(61,214,140,0.1)':'var(--card2)'};border:1px solid ${awayFav?'rgba(61,214,140,0.3)':'var(--border)'};border-radius:8px;padding:8px;text-align:center;">
             <div style="font-size:10px;color:var(--muted);">${g.away_team_abbr} ${awayRL>0?'+':''}${awayRL}</div>
-            <div style="font-size:12px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${awayFav?'✅ Lean':'❌ Fade'}</div>
+            <div style="font-size:13px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${awayFav?'✅ Lean':'❌ Fade'}</div>
           </div>
           <div style="flex:1;background:${!awayFav?'rgba(61,214,140,0.1)':'var(--card2)'};border:1px solid ${!awayFav?'rgba(61,214,140,0.3)':'var(--border)'};border-radius:8px;padding:8px;text-align:center;">
             <div style="font-size:10px;color:var(--muted);">${g.home_team_abbr} ${homeRL>0?'+':''}${homeRL}</div>
-            <div style="font-size:12px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${!awayFav?'✅ Lean':'❌ Fade'}</div>
+            <div style="font-size:13px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${!awayFav?'✅ Lean':'❌ Fade'}</div>
           </div>
         </div>
       </div>
