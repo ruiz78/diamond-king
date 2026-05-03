@@ -2590,9 +2590,9 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
-  const d = new Date(meta.date);
+  // Always show today's actual date, not the API's data date
   document.getElementById('todayDate').textContent =
-    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
+    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
