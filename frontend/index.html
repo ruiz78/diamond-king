@@ -861,6 +861,10 @@ body::before {
     <span class="nav-icon">🏟️</span>
     <span>Games</span>
   </div>
+  <div class="nav-item" onclick="showPage('livescores', this)" style="padding-left:36px;font-size:12px;opacity:0.85;">
+    <span class="nav-icon" style="font-size:9px;">🔴</span>
+    <span>Live Scores</span>
+  </div>
 
   <div class="nav-section">Projections</div>
   <div class="nav-item" onclick="showPage('pitchers', this)">
@@ -870,6 +874,14 @@ body::before {
   <div class="nav-item" onclick="showPage('batters', this)">
     <span class="nav-icon">🏏</span>
     <span>Batters</span>
+  </div>
+  <div class="nav-item" onclick="showPage('moneyline', this)" style="padding-left:36px;font-size:12px;opacity:0.85;">
+    <span class="nav-icon">💰</span>
+    <span>Moneyline</span>
+  </div>
+  <div class="nav-item" onclick="showPage('spread', this)" style="padding-left:36px;font-size:12px;opacity:0.85;">
+    <span class="nav-icon">📊</span>
+    <span>Spread</span>
   </div>
 
   <div class="nav-section">Tools</div>
@@ -1710,58 +1722,6 @@ body::before {
 .odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
 </style>
 
-        <div class="live-refresh-time" id="live-last-refresh">Not yet refreshed</div>
-      </div>
-      <button class="live-refresh-btn" onclick="refreshLiveData()">
-        <span id="live-refresh-icon">⟳</span> Refresh Live
-      </button>
-    </div>
-
-    <!-- Live / Scheduled tabs -->
-    <div class="live-tabs">
-      <div class="live-tab active" onclick="switchLiveTab('scores', this)">🏟️ Live Scores</div>
-      <div class="live-tab" onclick="switchLiveTab('props', this)">💰 Live Props</div>
-    </div>
-
-    <!-- SCORES TAB -->
-    <div id="live-scores-tab">
-      <div class="section-header">
-        <div class="section-title">🔴 Games</div>
-        <div class="section-count" id="live-game-count">0 games</div>
-      </div>
-      <div class="games-live-grid" id="live-scores-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">📡</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current scores</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROPS TAB -->
-    <div id="live-props-tab" style="display:none;">
-      <div class="section-header">
-        <div class="section-title">💰 Live Prop Lines</div>
-        <div class="section-count" id="live-prop-count">0 props</div>
-      </div>
-      <div class="filter-bar">
-        <input class="search-input" id="live-prop-search" placeholder="Search player..." oninput="filterLiveProps()">
-        <button class="sort-btn active" onclick="filterLivePropsByMarket('all', this)">All</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('pitcher_strikeouts', this)">⚾ K</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_home_runs', this)">💥 HR</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_hits', this)">🏏 Hits</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_rbis', this)">💪 RBI</button>
-      </div>
-      <div id="live-props-list">
-        <div style="text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">💰</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No prop data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current lines</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
   <div class="page" id="page-parlay" style="padding:28px 32px;">
 
     <!-- TOP BAR: Quick build + toggle -->
@@ -1835,6 +1795,85 @@ body::before {
     </div>
   </div>
 
+  <!-- ══ PAGE: LIVE SCORES ══ -->
+  <div class="page" id="page-livescores" style="padding:28px 32px;">
+    <div class="section-header">
+      <div class="section-title" style="display:flex;align-items:center;gap:8px;">
+        <span style="width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block;animation:blink 1.5s infinite;"></span>
+        Live Scores
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div id="live-last-refresh" style="font-size:11px;color:var(--muted);">Not yet refreshed</div>
+        <button class="refresh-btn" onclick="refreshLivePage()" style="font-size:11px;">
+          <span id="live-refresh-icon">⟳</span> Refresh Live
+        </button>
+        <div class="section-count" id="live-game-count">0 games</div>
+      </div>
+    </div>
+    <div class="live-tabs" style="margin-bottom:16px;">
+      <div class="live-tab active" onclick="switchLiveTab('scores', this)">🏟️ Live Scores</div>
+      <div class="live-tab" onclick="switchLiveTab('props', this)">💰 Live Props</div>
+    </div>
+    <div id="live-scores-tab">
+      <div class="games-live-grid" id="live-scores-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
+          <div style="font-size:32px;margin-bottom:12px;">📡</div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
+          <div style="font-size:12px;">Click "Refresh Live" to fetch scores</div>
+        </div>
+      </div>
+    </div>
+    <div id="live-props-tab" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">💰 Live Prop Lines</div>
+        <div class="section-count" id="live-prop-count">0 props</div>
+      </div>
+      <div class="filter-bar">
+        <input class="search-input" id="live-prop-search" placeholder="Search player..." oninput="filterLiveProps()">
+        <button class="sort-btn active" onclick="filterLivePropsByMarket('all', this)">All</button>
+        <button class="sort-btn" onclick="filterLivePropsByMarket('pitcher_strikeouts', this)">⚾ K</button>
+        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_home_runs', this)">💥 HR</button>
+        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_hits', this)">🏏 Hits</button>
+        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_rbis', this)">💪 RBI</button>
+      </div>
+      <div id="live-props-list">
+        <div style="text-align:center;padding:48px;color:var(--muted);">
+          <div style="font-size:32px;margin-bottom:12px;">💰</div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No prop data yet</div>
+          <div style="font-size:12px;">Click "Refresh Live" to fetch lines</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: MONEYLINE ══ -->
+  <div class="page" id="page-moneyline" style="padding:28px 32px;">
+    <div class="section-header">
+      <div class="section-title">💰 Moneyline Predictions</div>
+      <div class="section-count" id="ml-game-count">0 games</div>
+    </div>
+    <div id="moneyline-grid" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="text-align:center;padding:48px;color:var(--muted);">
+        <div style="font-size:32px;margin-bottom:12px;">💰</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: SPREAD ══ -->
+  <div class="page" id="page-spread" style="padding:28px 32px;">
+    <div class="section-header">
+      <div class="section-title">📊 Spread Predictions</div>
+      <div class="section-count" id="spread-game-count">0 games</div>
+    </div>
+    <div id="spread-grid" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="text-align:center;padding:48px;color:var(--muted);">
+        <div style="font-size:32px;margin-bottom:12px;">📊</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -1856,12 +1895,15 @@ let state = {
 //  NAVIGATION
 // ═══════════════════════════════════════
 const pageTitles = {
-  dashboard: 'Dashboard',
-  edges:     'Royal Picks',
-  games:     'Games',
-  pitchers:  'Pitcher Projections',
-  batters:   'Batter Projections',
-  parlay:    'Parlay Builder',
+  dashboard:  'Dashboard',
+  edges:      'Royal Picks',
+  games:      'Games',
+  livescores: 'Live Scores',
+  pitchers:   'Pitcher Projections',
+  batters:    'Batter Projections',
+  moneyline:  'Moneyline Predictions',
+  spread:     'Spread Predictions',
+  parlay:     'Parlay Builder',
 };
 
 function showPage(id, el) {
@@ -1870,6 +1912,111 @@ function showPage(id, el) {
   document.getElementById('page-' + id).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('pageTitle').textContent = pageTitles[id] || id;
+  if (id === 'livescores') refreshLivePage();
+  if (id === 'moneyline')  renderMoneyline();
+  if (id === 'spread')     renderSpread();
+}
+
+async function refreshLivePage() {
+  document.getElementById('live-refresh-icon').textContent = '⟳';
+  await fetchLiveScores();
+  document.getElementById('live-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  renderLiveScores();
+}
+
+function renderMoneyline() {
+  const grid = document.getElementById('moneyline-grid');
+  const games = state.games;
+  document.getElementById('ml-game-count').textContent = games.length + ' games';
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
+  grid.innerHTML = games.map(g => {
+    const {awayWP, homeWP} = gameWinProb(g);
+    const odds = findGameOdds(g);
+    const awayFav = awayWP >= homeWP;
+    const fairAway = awayWP > 0 ? Math.round(awayWP >= 0.5 ? -(awayWP*100)/(1-awayWP) : (1-awayWP)*100/awayWP) : 0;
+    const fairHome = homeWP > 0 ? Math.round(homeWP >= 0.5 ? -(homeWP*100)/(1-homeWP) : (1-homeWP)*100/homeWP) : 0;
+    const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : '';
+    return `
+    <div class="game-card" style="padding:16px 20px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:11px;color:var(--muted);">${time}</span>
+        <span style="font-size:10px;color:var(--muted);">${g.venue||''}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:center;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+          <div style="font-size:10px;color:var(--muted);">${g.away_record_w}-${g.away_record_l}</div>
+          <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${awayFav?'var(--green)':'var(--text)'};">${Math.round(awayWP*100)}%</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_away>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_away):'—'}</div>
+          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairAway)}</div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);">@</div>
+        <div style="text-align:right;">
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-size:10px;color:var(--muted);">${g.home_record_w}-${g.home_record_l}</div>
+          <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${!awayFav?'var(--green)':'var(--text)'};">${Math.round(homeWP*100)}%</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_home>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_home):'—'}</div>
+          <div style="font-size:9px;color:var(--muted);">Fair: ${fmtOdds(fairHome)}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="game-proj-bar">
+          <div class="${awayFav?'game-proj-fill-green':'game-proj-fill-grey'}" style="width:${Math.round(awayWP*100)}%;border-radius:6px 0 0 6px;"></div>
+          <div class="${!awayFav?'game-proj-fill-green':'game-proj-fill-grey'}" style="width:${Math.round(homeWP*100)}%;border-radius:0 6px 6px 0;"></div>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
+        🏆 Pick: <span style="color:var(--gold);font-weight:700;">${awayFav?g.away_team_abbr:g.home_team_abbr} to win</span>
+        ${!odds?'<span style="color:var(--muted);margin-left:8px;">— Load Odds for live lines</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSpread() {
+  const grid = document.getElementById('spread-grid');
+  const games = state.games;
+  document.getElementById('spread-game-count').textContent = games.length + ' games';
+  if (!games.length) { grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);">No games loaded yet — refresh data first</div>'; return; }
+  grid.innerHTML = games.map(g => {
+    const {awayWP, homeWP} = gameWinProb(g);
+    const odds = findGameOdds(g);
+    const awayFav = awayWP >= homeWP;
+    const awayRL = awayFav ? -1.5 : 1.5;
+    const homeRL = awayFav ? 1.5 : -1.5;
+    const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET' : '';
+    return `
+    <div class="game-card" style="padding:16px 20px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:11px;color:var(--muted);">${time}</span>
+        <span style="font-size:10px;color:var(--muted);">${g.venue||''}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:center;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${awayRL>0?'+':''}${awayRL}</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.spread_away>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.spread_away):'—'}</div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);">@</div>
+        <div style="text-align:right;">
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${homeRL>0?'+':''}${homeRL}</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.spread_home>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.spread_home):'—'}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:${awayFav?'rgba(61,214,140,0.1)':'var(--card2)'};border:1px solid ${awayFav?'rgba(61,214,140,0.3)':'var(--border)'};border-radius:8px;padding:8px;text-align:center;">
+          <div style="font-size:10px;color:var(--muted);">${g.away_team_abbr} ${awayRL>0?'+':''}${awayRL}</div>
+          <div style="font-size:13px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${awayFav?'✅ Lean':'❌ Fade'}</div>
+        </div>
+        <div style="background:${!awayFav?'rgba(61,214,140,0.1)':'var(--card2)'};border:1px solid ${!awayFav?'rgba(61,214,140,0.3)':'var(--border)'};border-radius:8px;padding:8px;text-align:center;">
+          <div style="font-size:10px;color:var(--muted);">${g.home_team_abbr} ${homeRL>0?'+':''}${homeRL}</div>
+          <div style="font-size:13px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${!awayFav?'✅ Lean':'❌ Fade'}</div>
+        </div>
+      </div>
+      ${!odds?'<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;">Load Odds for live run line</div>':''}
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════
@@ -2669,9 +2816,7 @@ let parlayLegs = [];
 
 function renderParlayAddGrid() {
   const grid = document.getElementById('parlay-add-grid');
-  const edges = dedupEdges(state.edges)
-    .filter(e => { const ls = liveScores[e.game_pk]; return !ls || ls.abstract_state !== 'Final'; })
-    .slice(0, 20);
+  const edges = dedupEdges(state.edges).slice(0, 20);
   if (!edges.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted)">No edges available. Run the midnight engine first.</div>`;
     return;
@@ -2695,9 +2840,7 @@ function renderParlayAddGrid() {
 }
 
 function toggleParlayLeg(edgeIndex) {
-  const edges = dedupEdges(state.edges)
-    .filter(e => { const ls = liveScores[e.game_pk]; return !ls || ls.abstract_state !== 'Final'; })
-    .slice(0, 20);
+  const edges = dedupEdges(state.edges).slice(0, 20);
   const edge  = edges[edgeIndex];
   if (!edge) return;
 
