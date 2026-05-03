@@ -2048,7 +2048,7 @@ function renderStraightBet() {
       <div style="width:44px;height:44px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${p.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div class="edge-player">${p.label}</div>
+          <div class="edge-player">${p.label}${p.type==='prop'?teamBadge(p.label.split(' — ')[0]):''}</div>
           <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.3);color:${p.badgeColor};border:1px solid ${p.badgeColor}33;">${p.badge}</span>
         </div>
         <div class="edge-prop" style="color:var(--green);font-weight:700;">${p.sublabel}</div>
@@ -2120,6 +2120,11 @@ function buildPlayerTeamMap() {
   state.pitchers.forEach(p => { if (p.team && p.player_name) playerTeamMap[p.player_name.trim().toLowerCase()] = p.team; });
 }
 
+function teamBadge(name) {
+  const t = playerTeamMap[name?.trim().toLowerCase()];
+  return t ? ` <span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>` : '';
+}
+
 function renderAll() {
   buildPlayerTeamMap();
   renderSummary();
@@ -2153,7 +2158,7 @@ function edgeCardHTML(e) {
       <div class="edge-stripe ${tier}"></div>
       <div class="edge-avatar">${icon}</div>
       <div class="edge-info">
-        <div class="edge-player">${e.player_name}${(()=>{const t=playerTeamMap[e.player_name?.trim().toLowerCase()];return t?` <span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>`:'';})()}</div>
+        <div class="edge-player">${e.player_name}${teamBadge(e.player_name)}</div>
         <div class="edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
         <div class="edge-book">Best line @ ${e.book} · Proj: ${e.model_proj}</div>
       </div>
@@ -2503,8 +2508,8 @@ function pitcherRowHTML(p) {
         <div class="player-cell">
           <div class="player-dot">⚾</div>
           <div>
-            <div class="player-name-cell">${p.player_name}</div>
-            <div class="player-team-cell">${p.pitch_hand || 'R'}HP · ${playerTeamMap[p.player_name?.trim().toLowerCase()] || p.team || p.venue || ''}</div>
+            <div class="player-name-cell">${p.player_name}${teamBadge(p.player_name)}</div>
+            <div class="player-team-cell">${p.pitch_hand || 'R'}HP · ${p.venue || ''}</div>
           </div>
         </div>
       </td>
@@ -2549,8 +2554,8 @@ function batterRowHTML(b) {
         <div class="player-cell">
           <div class="player-dot">🏏</div>
           <div>
-            <div class="player-name-cell">${b.player_name}</div>
-            <div class="player-team-cell">#${b.batting_order || '?'} · ${b.bat_side || 'R'}HB · ${playerTeamMap[b.player_name?.trim().toLowerCase()] || b.team || b.venue || ''}</div>
+            <div class="player-name-cell">${b.player_name}${teamBadge(b.player_name)}</div>
+            <div class="player-team-cell">#${b.batting_order || '?'} · ${b.bat_side || 'R'}HB · ${b.venue || ''}</div>
           </div>
         </div>
       </td>
@@ -2875,7 +2880,7 @@ function renderParlayAddGrid() {
       <div class="add-edge-card ${added ? 'added' : ''}" onclick="toggleParlayLeg(${i})">
         <div style="font-size:18px">${icon}</div>
         <div class="add-edge-info">
-          <div class="add-edge-player">${e.player_name}</div>
+          <div class="add-edge-player">${e.player_name}${teamBadge(e.player_name)}</div>
           <div class="add-edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
         </div>
         <div class="add-btn">${added ? '✓' : '+'}</div>
@@ -2922,7 +2927,7 @@ function renderParlayLegs() {
     <div class="parlay-leg">
       <div class="parlay-leg-num">${i + 1}</div>
       <div class="parlay-leg-info">
-        <div class="parlay-leg-player">${leg.player_name}</div>
+        <div class="parlay-leg-player">${leg.player_name}${teamBadge(leg.player_name)}</div>
         <div class="parlay-leg-prop">${leg.bet_type} ${leg.line} ${leg.stat_label} · ${leg.book}</div>
       </div>
       <div>
