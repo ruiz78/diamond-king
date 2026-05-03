@@ -1710,58 +1710,6 @@ body::before {
 .odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
 </style>
 
-        <div class="live-refresh-time" id="live-last-refresh">Not yet refreshed</div>
-      </div>
-      <button class="live-refresh-btn" onclick="refreshLiveData()">
-        <span id="live-refresh-icon">⟳</span> Refresh Live
-      </button>
-    </div>
-
-    <!-- Live / Scheduled tabs -->
-    <div class="live-tabs">
-      <div class="live-tab active" onclick="switchLiveTab('scores', this)">🏟️ Live Scores</div>
-      <div class="live-tab" onclick="switchLiveTab('props', this)">💰 Live Props</div>
-    </div>
-
-    <!-- SCORES TAB -->
-    <div id="live-scores-tab">
-      <div class="section-header">
-        <div class="section-title">🔴 Games</div>
-        <div class="section-count" id="live-game-count">0 games</div>
-      </div>
-      <div class="games-live-grid" id="live-scores-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">📡</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No live data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current scores</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROPS TAB -->
-    <div id="live-props-tab" style="display:none;">
-      <div class="section-header">
-        <div class="section-title">💰 Live Prop Lines</div>
-        <div class="section-count" id="live-prop-count">0 props</div>
-      </div>
-      <div class="filter-bar">
-        <input class="search-input" id="live-prop-search" placeholder="Search player..." oninput="filterLiveProps()">
-        <button class="sort-btn active" onclick="filterLivePropsByMarket('all', this)">All</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('pitcher_strikeouts', this)">⚾ K</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_home_runs', this)">💥 HR</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_hits', this)">🏏 Hits</button>
-        <button class="sort-btn" onclick="filterLivePropsByMarket('batter_rbis', this)">💪 RBI</button>
-      </div>
-      <div id="live-props-list">
-        <div style="text-align:center;padding:48px;color:var(--muted);">
-          <div style="font-size:32px;margin-bottom:12px;">💰</div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">No prop data yet</div>
-          <div style="font-size:12px;">Click "Refresh Live" to fetch current lines</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
   <div class="page" id="page-parlay" style="padding:28px 32px;">
 
     <!-- TOP BAR: Quick build + toggle -->
