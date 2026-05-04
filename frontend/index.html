@@ -13,13 +13,13 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 :root {
-  --bg:        #0e0304;
-  --bg2:       #110405;
-  --surface:   #160506;
-  --card:      #1c0607;
-  --card2:     #220809;
-  --border:    #3a0c0e;
-  --border2:   #4e1012;
+  --bg:        #06070c;
+  --bg2:       #0a0d15;
+  --surface:   #0f1220;
+  --card:      #131828;
+  --card2:     #181f32;
+  --border:    #1e2640;
+  --border2:   #252e4a;
   --gold:      #c8a44a;
   --gold2:     #ecc96a;
   --gold3:     #f5dfa0;
@@ -27,15 +27,15 @@
   --gold-glow: rgba(200,164,74,0.25);
   --red:       #e8454a;
   --red-dim:   rgba(232,69,74,0.15);
-  --blue:      #2979ff;
-  --blue-dim:  rgba(41,121,255,0.15);
+  --blue:      #4a8fe8;
+  --blue-dim:  rgba(74,143,232,0.15);
   --green:     #3dd68c;
   --green-dim: rgba(61,214,140,0.15);
   --orange:    #f07846;
-  --text:      #f0e8e8;
-  --muted:     #8a5a5c;
-  --muted2:    #b08082;
-  --royal-grad: linear-gradient(135deg, #1a0808, #240d0a, #1a0808);
+  --text:      #e8eaf5;
+  --muted:     #5a6480;
+  --muted2:    #8892b0;
+  --royal-grad: linear-gradient(135deg, #1a1508, #241d0a, #1a1508);
 }
 
 html { scroll-behavior: smooth; }
@@ -1622,8 +1622,8 @@ body::before {
 
 .game-proj-fill-grey {
   height: 100%;
-  background: linear-gradient(90deg, #3a0c0e, #5a1215);
-  opacity: 0.9;
+  background: var(--muted);
+  opacity: 0.5;
   border-radius: 0 6px 6px 0;
   transition: width 0.6s ease;
 }
@@ -2590,9 +2590,8 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
-  const d = new Date(meta.date);
   document.getElementById('todayDate').textContent =
-    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
+    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
