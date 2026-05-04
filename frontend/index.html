@@ -2154,8 +2154,8 @@ function edgeCardHTML(e) {
       <div class="edge-avatar">${icon}</div>
       <div class="edge-info">
         <div class="edge-player">${e.player_name}${(()=>{const t=playerTeamMap[e.player_name?.trim().toLowerCase()];return t?` <span style="font-size:10px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-left:5px;">${t}</span>`:'';})()}</div>
-        <div class="edge-prop">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds > 0 ? '+' : ''}${e.odds}</div>
-        <div class="edge-book">Best line @ ${e.book} · Proj: ${e.model_proj}</div>
+        <div class="edge-prop" style="color:var(--green);font-weight:700;">${e.bet_type} ${e.line} ${e.stat_label} · <span style="color:var(--green);font-weight:700;">${e.odds > 0 ? '+' : ''}${e.odds}</span></div>
+        <div class="edge-book"><span style="color:var(--muted2);">${getEdgeLocation(e) ? `Playing in ${getEdgeLocation(e)}` : `@ ${e.book}`}</span> · <span style="color:var(--green);font-weight:700;">Proj: ${e.model_proj}</span></div>
       </div>
       <div class="edge-right">
         <div class="edge-prob ${probClass}">${prob}</div>
@@ -2294,6 +2294,39 @@ function findGameOdds(g) {
 function fmtOdds(o) { if(o===null||o===undefined) return '—'; return o>0?`+${o}`:`${o}`; }
 
 function edgeCls(edge) { return edge>0.04?'pos':edge<-0.04?'neg':'neu'; }
+
+// Venue → US state lookup
+const venueStateMap = {
+  'yankee stadium':'NY','fenway park':'MA','wrigley field':'IL','guaranteed rate field':'IL',
+  'great american ball park':'OH','progressive field':'OH','comerica park':'MI',
+  'kauffman stadium':'MO','busch stadium':'MO','target field':'MN','american family field':'WI',
+  'pnc park':'PA','citizens bank park':'PA','citi field':'NY','nationals park':'DC',
+  'truist park':'GA','loandepot park':'FL','tropicana field':'FL','minute maid park':'TX',
+  'globe life field':'TX','coors field':'CO','chase field':'AZ','dodger stadium':'CA',
+  'oracle park':'CA','petco park':'CA','angel stadium':'CA','t-mobile park':'WA',
+  'sutter health park':'CA','camden yards':'MD','oriole park at camden yards':'MD',
+  'rogers centre':'Canada',
+};
+
+function teamBadge(name) {
+  const t = playerTeamMap[name?.trim().toLowerCase()];
+  return t ? ` <span style="font-size:10px;font-weight:700;color:var(--muted2);background:var(--card2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px;margin-left:5px;">${t}</span>` : '';
+}
+
+function getEdgeLocation(e) {
+  const g = state.games.find(gm => gm.game_pk === e.game_pk);
+  if (g?.venue) return venueStateMap[g.venue.toLowerCase()] || g.venue.split(' ').slice(-1)[0];
+  // fallback: use playerTeamMap to get home venue from games
+  const team = playerTeamMap[e.player_name?.trim().toLowerCase()];
+  if (team) {
+    const game = state.games.find(gm =>
+      (gm.away_team_abbr||'').toUpperCase() === team.toUpperCase() ||
+      (gm.home_team_abbr||'').toUpperCase() === team.toUpperCase()
+    );
+    if (game?.venue) return venueStateMap[game.venue.toLowerCase()] || game.venue.split(' ').slice(-1)[0];
+  }
+  return null;
+}
 
 // Win probability from records (Pythagorean expectation)
 function gameWinProb(g) {
@@ -2590,8 +2623,9 @@ function filterBatters() {
 // ── Meta ─────────────────────────────
 function updateMeta(meta) {
   if (!meta) return;
+  const d = new Date(meta.date);
   document.getElementById('todayDate').textContent =
-    new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
   const gen = meta.generated ? new Date(meta.generated).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
   document.getElementById('lastUpdate').textContent = gen ? 'Updated ' + gen : '';
 }
