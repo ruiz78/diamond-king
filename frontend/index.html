@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=1280">
 <title>Diamond King — Baseball Prediction Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800;900&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
    ROOT & RESET
@@ -13,29 +13,29 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 :root {
-  --bg:        #020617;
-  --bg2:       #0a0f1e;
-  --surface:   #0a0f1e;
-  --card:      #0f172a;
-  --card2:     #1e293b;
-  --border:    #1e293b;
-  --border2:   #334155;
-  --gold:      #f59e0b;
-  --gold2:     #fcd34d;
-  --gold3:     #fef3c7;
-  --gold-dim:  rgba(245,158,11,0.15);
-  --gold-glow: rgba(245,158,11,0.25);
-  --red:       #ef4444;
-  --red-dim:   rgba(239,68,68,0.15);
-  --blue:      #3b82f6;
-  --blue-dim:  rgba(59,130,246,0.15);
-  --green:     #22c55e;
-  --green-dim: rgba(34,197,94,0.15);
-  --orange:    #f97316;
-  --text:      #f8fafc;
-  --muted:     #475569;
-  --muted2:    #94a3b8;
-  --royal-grad: linear-gradient(135deg,#78350f,#92400e,#78350f);
+  --bg:        #06070c;
+  --bg2:       #0a0d15;
+  --surface:   #0f1220;
+  --card:      #131828;
+  --card2:     #181f32;
+  --border:    #1e2640;
+  --border2:   #252e4a;
+  --gold:      #c8a44a;
+  --gold2:     #ecc96a;
+  --gold3:     #f5dfa0;
+  --gold-dim:  rgba(200,164,74,0.12);
+  --gold-glow: rgba(200,164,74,0.25);
+  --red:       #e8454a;
+  --red-dim:   rgba(232,69,74,0.15);
+  --blue:      #4a8fe8;
+  --blue-dim:  rgba(74,143,232,0.15);
+  --green:     #3dd68c;
+  --green-dim: rgba(61,214,140,0.15);
+  --orange:    #f07846;
+  --text:      #e8eaf5;
+  --muted:     #5a6480;
+  --muted2:    #8892b0;
+  --royal-grad: linear-gradient(135deg, #1a1508, #241d0a, #1a1508);
 }
 
 html { scroll-behavior: smooth; }
@@ -43,7 +43,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 400;
   min-height: 100vh;
   overflow-x: hidden;
@@ -242,7 +242,7 @@ body::before {
   color: var(--gold);
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
 }
 
 .refresh-btn:hover {
@@ -479,15 +479,27 @@ body::before {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px;
-  cursor: pointer;
+  overflow: hidden;
   transition: all 0.2s;
 }
 
-.game-card:hover {
-  border-color: var(--border2);
-  transform: translateY(-2px);
-}
+.game-card:hover { border-color: var(--border2); }
+
+/* Flip card system */
+.flip-card-wrap { perspective: 1200px; }
+.flip-card-inner { position: relative; width: 100%; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); transform-style: preserve-3d; }
+.flip-card-wrap.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px; overflow: hidden; }
+.flip-card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotateY(180deg); background: var(--card); border: 1px solid var(--border2); }
+.flip-btn { background: var(--gold-dim); border: 1px solid rgba(245,158,11,0.35); color: var(--gold); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.flip-btn:hover { background: rgba(245,158,11,0.2); }
+.game-prop-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.game-prop-row:last-child { border-bottom: none; }
+.game-prop-player { font-size: 12px; font-weight: 700; color: var(--text); }
+.game-prop-detail { font-size: 10px; color: var(--muted2); margin-top: 1px; }
+.game-prop-right { text-align: right; flex-shrink: 0; }
+.game-prop-prob { font-size: 15px; font-weight: 800; color: var(--gold); }
+.game-prop-line { font-size: 10px; color: var(--green); font-weight: 600; margin-top: 1px; }
 
 .game-header {
   display: flex;
@@ -716,7 +728,7 @@ body::before {
   border-radius: 10px;
   padding: 9px 16px;
   font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   color: var(--text);
   outline: none;
   transition: all 0.2s;
@@ -736,7 +748,7 @@ body::before {
   padding: 9px 14px;
   font-size: 11px;
   font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   letter-spacing: 0.5px;
   color: var(--muted2);
   cursor: pointer;
@@ -1203,7 +1215,7 @@ body::before {
   padding: 7px 12px;
   font-size: 14px;
   font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   color: var(--text);
   outline: none;
   transition: all 0.2s;
@@ -1253,7 +1265,7 @@ body::before {
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 8px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
 }
 .clear-parlay-btn:hover { border-color: var(--red); color: var(--red); }
 
@@ -1527,7 +1539,7 @@ body::before {
   font-weight: 700;
   color: var(--red);
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -1615,7 +1627,7 @@ body::before {
 
 .game-proj-fill-green {
   height: 100%;
-  background: #3b82f6;
+  background: linear-gradient(90deg, var(--green), #2db87a);
   border-radius: 6px 0 0 6px;
   transition: width 0.6s ease;
 }
@@ -1759,23 +1771,23 @@ body::before {
       <!-- SUMMARY PANEL - collapsible -->
       <div id="parlay-summary-panel" style="width:260px;flex-shrink:0;display:block;">
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;">
-          <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:11px;letter-spacing:2px;color:var(--gold);text-align:center;margin-bottom:12px;">👑 SUMMARY</div>
+          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--gold);text-align:center;margin-bottom:12px;">👑 SUMMARY</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
             <div style="text-align:center;background:var(--card2);border-radius:8px;padding:8px;">
               <div style="font-size:8px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Legs</div>
-              <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-legs">0</div>
+              <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-legs">0</div>
             </div>
             <div style="text-align:center;background:var(--card2);border-radius:8px;padding:8px;">
               <div style="font-size:8px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Odds</div>
-              <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-odds">—</div>
+              <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2);" id="ps-odds">—</div>
             </div>
             <div style="text-align:center;background:var(--card2);border-radius:8px;padding:8px;">
               <div style="font-size:8px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Win %</div>
-              <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:20px;font-weight:700;color:var(--green);" id="ps-prob">—</div>
+              <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--green);" id="ps-prob">—</div>
             </div>
             <div style="text-align:center;background:var(--card2);border-radius:8px;padding:8px;">
               <div style="font-size:8px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Exp. Value</div>
-              <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:20px;font-weight:700;" id="ps-ev">—</div>
+              <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;" id="ps-ev">—</div>
             </div>
           </div>
           <div id="ps-rating" style="text-align:center;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:10px;">—</div>
@@ -1785,7 +1797,7 @@ body::before {
           </div>
           <div style="text-align:center;background:var(--card2);border-radius:8px;padding:10px;margin-bottom:10px;">
             <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Potential Payout</div>
-            <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:26px;font-weight:700;color:var(--green);" id="ps-payout">$0.00</div>
+            <div style="font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--green);" id="ps-payout">$0.00</div>
           </div>
           <button class="parlay-add-btn" style="margin:0 0 8px 0;padding:10px;" onclick="copyParlay()">📋 Copy Parlay</button>
           <button class="clear-parlay-btn" style="margin:0;padding:8px;" onclick="clearParlay()">✕ Clear All</button>
@@ -1804,7 +1816,7 @@ body::before {
     <div id="moneyline-grid" style="display:flex;flex-direction:column;gap:10px;">
       <div style="text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">💰</div>
-        <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:14px;color:var(--gold);">Loading predictions...</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
       </div>
     </div>
   </div>
@@ -1818,7 +1830,7 @@ body::before {
     <div id="spread-grid" style="display:flex;flex-direction:column;gap:10px;">
       <div style="text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">📊</div>
-        <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:14px;color:var(--gold);">Loading predictions...</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">Loading predictions...</div>
       </div>
     </div>
   </div>
@@ -1835,7 +1847,7 @@ body::before {
     <div style="display:flex;flex-direction:column;gap:8px;" id="straightbet-grid">
       <div style="text-align:center;padding:48px;color:var(--muted);">
         <div style="font-size:32px;margin-bottom:12px;">🎯</div>
-        <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:14px;color:var(--gold);margin-bottom:6px;">Loading picks...</div>
+        <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:6px;">Loading picks...</div>
         <div style="font-size:12px;">Load data and odds first for best results</div>
       </div>
     </div>
@@ -1923,7 +1935,7 @@ function renderMoneyline() {
       </div>
       <div style="display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:center;">
         <div>
-          <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
           <div style="font-size:10px;color:var(--muted);">${g.away_record_w}-${g.away_record_l}</div>
           <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${awayFav?'var(--green)':'var(--text)'};">${Math.round(awayWP*100)}%</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_away>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_away):'—'}</div>
@@ -1931,7 +1943,7 @@ function renderMoneyline() {
         </div>
         <div style="text-align:center;font-size:11px;color:var(--muted);">@</div>
         <div style="text-align:right;">
-          <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
           <div style="font-size:10px;color:var(--muted);">${g.home_record_w}-${g.home_record_l}</div>
           <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Win Prob: <span style="color:${!awayFav?'var(--green)':'var(--text)'};">${Math.round(homeWP*100)}%</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.ml_home>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.ml_home):'—'}</div>
@@ -1971,13 +1983,13 @@ function renderSpread() {
       </div>
       <div style="display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:center;">
         <div>
-          <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${awayFav?'var(--green)':'var(--muted2)'};">${g.away_team_abbr}</div>
           <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${awayRL>0?'+':''}${awayRL}</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.spread_away>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.spread_away):'—'}</div>
         </div>
         <div style="text-align:center;font-size:11px;color:var(--muted);">@</div>
         <div style="text-align:right;">
-          <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
+          <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:${!awayFav?'var(--green)':'var(--muted2)'};">${g.home_team_abbr}</div>
           <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Run Line: <span style="color:var(--text);">${homeRL>0?'+':''}${homeRL}</span></div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:${odds&&odds.spread_home>0?'var(--green)':'var(--text)'};">${odds?fmtOdds(odds.spread_home):'—'}</div>
         </div>
@@ -2316,7 +2328,28 @@ function wpToML(wp) {
   return Math.round((1-wp) / wp * 100);
 }
 
+// Get top prop edges for a specific game by matching team abbrs
+function getGameProps(g) {
+  const teams = new Set([
+    (g.away_team_abbr||'').toUpperCase(),
+    (g.home_team_abbr||'').toUpperCase(),
+    (g.away_team_name||'').split(' ').pop().toUpperCase(),
+    (g.home_team_name||'').split(' ').pop().toUpperCase(),
+  ]);
+  return dedupEdges(state.edges)
+    .filter(e => {
+      const t = (playerTeamMap[e.player_name?.trim().toLowerCase()]||'').toUpperCase();
+      return teams.has(t);
+    })
+    .sort((a,b) => (parseFloat(b.win_prob_pct)||0) - (parseFloat(a.win_prob_pct)||0))
+    .slice(0, 6);
+}
+
+// Unique ID counter for flip cards
+let _flipId = 0;
+
 function gameCardHTML(g) {
+  const id = 'fc' + (_flipId++);
   const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '—';
   const odds = findGameOdds(g);
 
@@ -2419,59 +2452,87 @@ function gameCardHTML(g) {
       </div>`;
   }
 
-  return `
-    <div class="game-card ${awayFav ? 'fav-away' : 'fav-home'}">
-      <div class="game-header">
-        <div class="game-time">${time} ET</div>
-        ${(()=>{
-          const ls = liveScores[g.game_pk];
-          if (!ls) return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
-          if (ls.abstract_state === 'Live') {
-            return `<div class="game-status" style="background:rgba(232,69,74,0.15);color:var(--red);border-color:rgba(232,69,74,0.3);">🔴 ${ls.inning_half?.charAt(0)||''}${ls.inning}</div>`;
-          }
-          if (ls.abstract_state === 'Final') {
-            return `<div class="game-status" style="color:var(--muted2);">FINAL</div>`;
-          }
-          return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
-        })()}
+
+  // Build back side with top props for this game
+  const gameProps = getGameProps(g);
+  const backContent = gameProps.length ? gameProps.map(e => {
+    const team = playerTeamMap[e.player_name?.trim().toLowerCase()] || '';
+    const tier = e.rating?.includes('ROYAL') ? 'royal' : e.rating?.includes('HIGH') ? 'high' : 'medium';
+    const tierColor = tier==='royal' ? 'var(--gold)' : tier==='high' ? 'var(--green)' : 'var(--blue)';
+    return `
+    <div class="game-prop-row">
+      <div>
+        <div class="game-prop-player">${e.player_name} ${team ? `<span style="font-size:9px;background:var(--card2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px;color:var(--muted2);">${team}</span>` : ''}</div>
+        <div class="game-prop-detail" style="color:var(--green);font-weight:600;">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds>0?'+':''}${e.odds}</div>
       </div>
-      <div class="game-matchup">
-        <div class="team-block">
-          <div class="team-abbr ${awayFav ? 'favorite' : 'underdog'}">${g.away_team_abbr || '—'}</div>
-          <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
-          <div class="fav-badge ${awayFav ? 'fav' : 'dog'}">${awayFav ? '⭐ FAV' : 'DOG'}</div>
-        </div>
-        <div class="vs-divider">
-          ${(()=>{
-            const ls = liveScores[g.game_pk];
-            if (ls && (ls.abstract_state === 'Live' || ls.abstract_state === 'Final') && ls.away_score !== null) {
-              const awayWin = ls.away_score > ls.home_score;
-              const homeWin = ls.home_score > ls.away_score;
-              return `<div style="text-align:center;">
-                <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:28px;font-weight:700;line-height:1;display:flex;align-items:center;gap:8px;">
-                  <span style="color:${awayWin?'var(--green)':'var(--muted2)'}">${ls.away_score}</span>
-                  <span style="font-size:16px;color:var(--muted);">—</span>
-                  <span style="color:${homeWin?'var(--green)':'var(--muted2)'}">${ls.home_score}</span>
-                </div>
-              </div>`;
-            }
-            return '<span>@</span>';
-          })()}
-        </div>
-        <div class="team-block">
-          <div class="team-abbr ${!awayFav ? 'favorite' : 'underdog'}">${g.home_team_abbr || '—'}</div>
-          <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
-          <div class="fav-badge ${!awayFav ? 'fav' : 'dog'}">${!awayFav ? '⭐ FAV' : 'DOG'}</div>
-        </div>
+      <div class="game-prop-right">
+        <div class="game-prop-prob" style="color:${tierColor};">${e.win_prob_pct}%</div>
+        <div class="game-prop-line">Proj: ${e.model_proj}</div>
       </div>
-      <div class="game-pitchers">
-        <span>${g.away_pitcher_name || 'TBD'}</span>
-        <span>${g.home_pitcher_name || 'TBD'}</span>
-      </div>
-      <div class="game-venue">${g.venue || ''}</div>
-      ${projSection}
-      ${oddsSection}
     </div>`;
+  }).join('') : `<div style="text-align:center;padding:32px;color:var(--muted);">
+    <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+    <div style="font-size:12px;">No prop edges found for this game</div>
+    <div style="font-size:10px;margin-top:4px;color:var(--muted);">Load Odds to generate edges</div>
+  </div>`;
+
+  return `
+  <div class="flip-card-wrap" id="${id}">
+    <div class="flip-card-inner" style="min-height:420px;">
+      <div class="flip-card-front">
+        <div class="game-card ${awayFav ? 'fav-away' : 'fav-home'}" style="height:100%;">
+          <div class="game-header">
+            <div class="game-time">${time} ET</div>
+            ${(()=>{
+              const ls = liveScores[g.game_pk];
+              if (!ls) return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
+              if (ls.abstract_state === 'Live') return `<div class="game-status" style="background:rgba(232,69,74,0.15);color:var(--red);border-color:rgba(232,69,74,0.3);">🔴 ${ls.inning_half?.charAt(0)||''}${ls.inning}</div>`;
+              if (ls.abstract_state === 'Final') return `<div class="game-status" style="color:var(--muted2);">FINAL</div>`;
+              return `<div class="game-status">${g.status || 'Scheduled'}</div>`;
+            })()}
+          </div>
+          <div class="game-matchup">
+            <div class="team-block">
+              <div class="team-abbr ${awayFav ? 'favorite' : 'underdog'}">${g.away_team_abbr || '—'}</div>
+              <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
+              <div class="fav-badge ${awayFav ? 'fav' : 'dog'}">${awayFav ? '⭐ FAV' : 'DOG'}</div>
+            </div>
+            <div class="vs-divider">
+              ${(()=>{
+                const ls = liveScores[g.game_pk];
+                if (ls && (ls.abstract_state === 'Live' || ls.abstract_state === 'Final') && ls.away_score !== null) {
+                  const aw = ls.away_score > ls.home_score, hw = ls.home_score > ls.away_score;
+                  return `<div style="text-align:center;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;display:flex;align-items:center;gap:8px;"><span style="color:${aw?'var(--green)':'var(--muted2)'}">${ls.away_score}</span><span style="font-size:14px;color:var(--muted);">—</span><span style="color:${hw?'var(--green)':'var(--muted2)'}">${ls.home_score}</span></div></div>`;
+                }
+                return '<span>@</span>';
+              })()}
+            </div>
+            <div class="team-block">
+              <div class="team-abbr ${!awayFav ? 'favorite' : 'underdog'}">${g.home_team_abbr || '—'}</div>
+              <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
+              <div class="fav-badge ${!awayFav ? 'fav' : 'dog'}">${!awayFav ? '⭐ FAV' : 'DOG'}</div>
+            </div>
+          </div>
+          <div class="game-pitchers"><span>${g.away_pitcher_name || 'TBD'}</span><span>${g.home_pitcher_name || 'TBD'}</span></div>
+          <div class="game-venue">${g.venue || ''}</div>
+          ${projSection}
+          ${oddsSection}
+          <div style="padding:8px 14px;border-top:1px solid var(--border);text-align:center;">
+            <button class="flip-btn" onclick="event.stopPropagation();document.getElementById('${id}').classList.toggle('flipped')">
+              🎯 Top Props →
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card-back">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2);">
+          <div style="font-size:12px;font-weight:800;color:var(--gold);">🎯 ${g.away_team_abbr} vs ${g.home_team_abbr} — Top Props</div>
+          <button class="flip-btn" onclick="event.stopPropagation();document.getElementById('${id}').classList.toggle('flipped')">← Back</button>
+        </div>
+        ${backContent}
+      </div>
+    </div>
+  </div>`;
 }
 
 let liveScoresFetched = false;
@@ -2827,7 +2888,7 @@ function renderLiveProps(props) {
       </div>
       <div style="text-align:center;flex-shrink:0;">
         <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Model Proj</div>
-        <div style="font-family:'DM Sans',sans-serif;font-weight:900;letter-spacing:-0.5px;font-size:16px;color:var(--muted2);">${p.model_proj}</div>
+        <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--muted2);">${p.model_proj}</div>
       </div>
       <div class="live-prop-odds">
         <div class="live-odds-val">${p.odds > 0 ? '+' : ''}${p.odds}</div>
