@@ -484,44 +484,10 @@ body::before {
   transition: all 0.2s;
 }
 
-.game-card:hover { border-color: var(--border2); }
-/* ── Flip Card ─────────────────────────── */
-.flip-card-wrap { perspective: 1200px; }
-.flip-card-inner {
-  position: relative; width: 100%;
-  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
-  transform-style: preserve-3d;
+.game-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
 }
-.flip-card-wrap.flipped .flip-card-inner { transform: rotateY(180deg); }
-.flip-card-front {
-  backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  border-radius: 14px; overflow: hidden;
-}
-.flip-card-back {
-  backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  transform: rotateY(180deg); background: var(--card);
-  border: 1px solid var(--border2); border-radius: 14px;
-  overflow-y: auto;
-}
-.flip-btn {
-  background: var(--gold-dim); border: 1px solid rgba(245,158,11,0.35);
-  color: var(--gold); font-size: 10px; font-weight: 700;
-  padding: 3px 9px; border-radius: 6px; cursor: pointer;
-  font-family: inherit; transition: all 0.15s;
-}
-.flip-btn:hover { background: rgba(245,158,11,0.25); }
-.game-prop-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 14px; border-bottom: 1px solid var(--border);
-}
-.game-prop-row:last-child { border-bottom: none; }
-.game-prop-player { font-size: 12px; font-weight: 700; color: var(--text); }
-.game-prop-detail { font-size: 10px; color: var(--green); font-weight: 600; margin-top: 1px; }
-.game-prop-right { text-align: right; flex-shrink: 0; }
-.game-prop-prob { font-size: 15px; font-weight: 800; color: var(--gold); }
-.game-prop-line { font-size: 10px; color: var(--muted2); margin-top: 1px; }
-
 
 .game-header {
   display: flex;
@@ -1754,6 +1720,48 @@ body::before {
 .game-odds-divider { font-size: 10px; color: var(--muted); align-self: center; }
 .game-odds-book { font-size: 8px; color: var(--muted); text-align: right; margin-top: 3px; }
 .odds-loading { font-size: 10px; color: var(--muted); text-align: center; padding: 8px; font-style: italic; }
+
+/* ── Flip Cards ─────────────────────── */
+.gc-wrap { position: relative; }
+.gc-front, .gc-back {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.gc-back {
+  display: none;
+  border-color: var(--border2);
+}
+.gc-wrap.showing-back .gc-front { display: none; }
+.gc-wrap.showing-back .gc-back  { display: block; }
+.flip-btn {
+  width: 100%;
+  background: var(--gold-dim);
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 9px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  letter-spacing: 0.3px;
+}
+.flip-btn:hover { background: rgba(200,164,74,0.2); }
+.game-prop-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; border-bottom: 1px solid var(--border);
+}
+.game-prop-row:last-child { border-bottom: none; }
+.game-prop-player { font-size: 12px; font-weight: 700; color: var(--text); }
+.game-prop-detail { font-size: 10px; color: var(--green); font-weight: 600; margin-top: 2px; }
+.game-prop-right { text-align: right; flex-shrink: 0; margin-left: 12px; }
+.game-prop-prob { font-size: 16px; font-weight: 800; }
+.game-prop-line { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+
 </style>
 
   <div class="page" id="page-parlay" style="padding:28px 32px;">
@@ -2350,10 +2358,8 @@ function wpToML(wp) {
   return Math.round((1-wp) / wp * 100);
 }
 
+let _gcId = 0;
 
-
-// Get top prop edges for a game by matching team abbrs
-let _flipId = 0;
 function getGameProps(g) {
   const abbrs = new Set([
     (g.away_team_abbr||'').toUpperCase(),
@@ -2366,11 +2372,15 @@ function getGameProps(g) {
       return abbrs.has(t);
     })
     .sort((a,b) => (parseFloat(b.win_prob_pct)||0) - (parseFloat(a.win_prob_pct)||0))
-    .slice(0, 6);
+    .slice(0, 8);
+}
+
+function flipCard(id) {
+  document.getElementById(id).classList.toggle('showing-back');
 }
 
 function gameCardHTML(g) {
-  const fid  = 'fc' + (_flipId++);
+  const cid  = 'gc' + (_gcId++);
   const time = g.game_time ? new Date(g.game_time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '—';
   const odds = findGameOdds(g);
   const {awayWP, homeWP} = gameWinProb(g);
@@ -2381,20 +2391,17 @@ function gameCardHTML(g) {
   const confPct = Math.round(favWP * 100);
   const confLabel = confPct >= 65 ? '🔥 Strong' : confPct >= 57 ? '✅ Lean' : '⚖️ Toss Up';
 
-  // Status badge
   const ls = liveScores[g.game_pk];
   let statusHTML = `<div class="game-status">${g.status || 'Scheduled'}</div>`;
   if (ls?.abstract_state === 'Live')  statusHTML = `<div class="game-status" style="background:rgba(232,69,74,0.15);color:var(--red);border-color:rgba(232,69,74,0.3);">🔴 ${(ls.inning_half||'').charAt(0)}${ls.inning||''}</div>`;
   if (ls?.abstract_state === 'Final') statusHTML = `<div class="game-status" style="color:var(--muted2);">FINAL</div>`;
 
-  // Score or @
   let vsHTML = '<span>@</span>';
   if (ls && (ls.abstract_state === 'Live' || ls.abstract_state === 'Final') && ls.away_score !== null) {
     const aw = ls.away_score > ls.home_score, hw = ls.home_score > ls.away_score;
-    vsHTML = `<div style="text-align:center;"><div style="font-size:26px;font-weight:800;display:flex;align-items:center;gap:8px;"><span style="color:${aw?'var(--green)':'var(--muted2)'}">${ls.away_score}</span><span style="color:var(--muted);">—</span><span style="color:${hw?'var(--green)':'var(--muted2)'}">${ls.home_score}</span></div></div>`;
+    vsHTML = `<div style="text-align:center;font-size:26px;font-weight:800;display:flex;align-items:center;gap:8px;"><span style="color:${aw?'var(--green)':'var(--muted2)'}">${ls.away_score}</span><span style="color:var(--muted);font-size:14px;">—</span><span style="color:${hw?'var(--green)':'var(--muted2)'}">${ls.home_score}</span></div>`;
   }
 
-  // Projection section
   const wpToML = wp => wp>=0.5 ? -Math.round(wp/(1-wp)*100) : Math.round((1-wp)/wp*100);
   let projSection = `<div style="border-top:1px solid var(--border);padding:10px 14px 4px;">
     <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">🤖 Diamond King Projection</div>
@@ -2417,20 +2424,19 @@ function gameCardHTML(g) {
     </div>
   </div>`;
 
-  // Odds section
   let oddsSection = `<div style="font-size:10px;color:var(--muted);text-align:center;padding:8px;border-top:1px solid var(--border);">Click 💰 Load Odds for live lines & edge</div>`;
   if (odds) {
-    const calcEdge = (ml,wp) => { const imp=ml>0?100/(ml+100):Math.abs(ml)/(Math.abs(ml)+100); return {edge:wp-imp}; };
-    const ae=calcEdge(odds.ml_away,awayWP), he=calcEdge(odds.ml_home,homeWP);
-    const sl=odds.spread_line, slHome=sl?(sl*-1>0?'+':'')+(sl*-1):'+1.5';
-    const edgeCls = e => e>0.04?'pos':e<-0.04?'neg':'neu';
+    const calcEdge = (ml,wp) => { const imp=ml>0?100/(ml+100):Math.abs(ml)/(Math.abs(ml)+100); return wp-imp; };
+    const ae = calcEdge(odds.ml_away,awayWP), he = calcEdge(odds.ml_home,homeWP);
+    const ec = e => e>0.04?'pos':e<-0.04?'neg':'neu';
+    const sl = odds.spread_line, slH = sl?(sl*-1>0?'+':'')+(sl*-1):'+1.5';
     oddsSection = `<div class="game-odds-row">
       <div class="game-odds-cell">
         <div class="game-odds-label">💰 Live Moneyline</div>
         <div class="game-odds-teams">
-          <div class="game-odds-team"><div class="game-odds-abbr">${g.away_team_abbr}</div><div class="game-odds-val">${odds.ml_away>0?'+':''}${odds.ml_away??'—'}</div><div class="game-odds-edge ${edgeCls(ae.edge)}">${ae.edge>0?'+':''}${(ae.edge*100).toFixed(1)}%</div></div>
+          <div class="game-odds-team"><div class="game-odds-abbr">${g.away_team_abbr}</div><div class="game-odds-val">${odds.ml_away>0?'+':''}${odds.ml_away??'—'}</div><div class="game-odds-edge ${ec(ae)}">${ae>0?'+':''}${(ae*100).toFixed(1)}%</div></div>
           <div class="game-odds-divider">vs</div>
-          <div class="game-odds-team"><div class="game-odds-abbr">${g.home_team_abbr}</div><div class="game-odds-val">${odds.ml_home>0?'+':''}${odds.ml_home??'—'}</div><div class="game-odds-edge ${edgeCls(he.edge)}">${he.edge>0?'+':''}${(he.edge*100).toFixed(1)}%</div></div>
+          <div class="game-odds-team"><div class="game-odds-abbr">${g.home_team_abbr}</div><div class="game-odds-val">${odds.ml_home>0?'+':''}${odds.ml_home??'—'}</div><div class="game-odds-edge ${ec(he)}">${he>0?'+':''}${(he*100).toFixed(1)}%</div></div>
         </div><div class="game-odds-book">${odds.book}</div>
       </div>
       <div class="game-odds-cell">
@@ -2438,81 +2444,70 @@ function gameCardHTML(g) {
         <div class="game-odds-teams">
           <div class="game-odds-team"><div class="game-odds-abbr">${g.away_team_abbr}</div><div class="game-odds-val">${odds.spread_away>0?'+':''}${odds.spread_away??'—'}</div><div class="game-odds-edge neu">${sl>0?'+':''}${sl??'-1.5'}</div></div>
           <div class="game-odds-divider">vs</div>
-          <div class="game-odds-team"><div class="game-odds-abbr">${g.home_team_abbr}</div><div class="game-odds-val">${odds.spread_home>0?'+':''}${odds.spread_home??'—'}</div><div class="game-odds-edge neu">${slHome}</div></div>
+          <div class="game-odds-team"><div class="game-odds-abbr">${g.home_team_abbr}</div><div class="game-odds-val">${odds.spread_home>0?'+':''}${odds.spread_home??'—'}</div><div class="game-odds-edge neu">${slH}</div></div>
         </div><div class="game-odds-book">${odds.book}</div>
       </div>
     </div>`;
   }
 
-  // Props back side
-  const gameProps = getGameProps(g);
-  const backRows = gameProps.length
-    ? gameProps.map(e => {
-        const t = playerTeamMap[e.player_name?.trim().toLowerCase()] || '';
-        const tBadge = t ? ` <span style="font-size:9px;background:var(--card2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px;color:var(--muted2);">${t}</span>` : '';
-        const tier = e.rating?.includes('ROYAL')?'royal':e.rating?.includes('HIGH')?'high':'medium';
-        const pColor = tier==='royal'?'var(--gold)':tier==='high'?'var(--green)':'var(--blue)';
-        return `<div class="game-prop-row">
-          <div style="flex:1;min-width:0;">
-            <div class="game-prop-player">${e.player_name}${tBadge}</div>
-            <div class="game-prop-detail">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds>0?'+':''}${e.odds}</div>
-          </div>
-          <div class="game-prop-right">
-            <div class="game-prop-prob" style="color:${pColor};">${e.win_prob_pct}%</div>
-            <div class="game-prop-line">Proj: ${e.model_proj}</div>
-          </div>
-        </div>`;
-      }).join('')
-    : `<div style="text-align:center;padding:40px 20px;color:var(--muted);">
-        <div style="font-size:32px;margin-bottom:10px;">🎯</div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted2);">No prop edges for this game</div>
-        <div style="font-size:10px;margin-top:6px;">Load Odds + Refresh to generate edges</div>
-      </div>`;
+  // Back: top props
+  const props = getGameProps(g);
+  const propsHTML = props.length ? props.map(e => {
+    const t = playerTeamMap[e.player_name?.trim().toLowerCase()] || '';
+    const tb = t ? ` <span style="font-size:9px;background:var(--card2);border:1px solid var(--border2);border-radius:3px;padding:1px 4px;color:var(--muted2);">${t}</span>` : '';
+    const tier = e.rating?.includes('ROYAL')?'royal':e.rating?.includes('HIGH')?'high':'medium';
+    const pc = tier==='royal'?'var(--gold)':tier==='high'?'var(--green)':'var(--blue)';
+    return `<div class="game-prop-row">
+      <div style="flex:1;min-width:0;">
+        <div class="game-prop-player">${e.player_name}${tb}</div>
+        <div class="game-prop-detail">${e.bet_type} ${e.line} ${e.stat_label} · ${e.odds>0?'+':''}${e.odds}</div>
+      </div>
+      <div class="game-prop-right">
+        <div class="game-prop-prob" style="color:${pc};">${e.win_prob_pct}%</div>
+        <div class="game-prop-line">Proj: ${e.model_proj}</div>
+      </div>
+    </div>`;
+  }).join('') : `<div style="text-align:center;padding:40px;color:var(--muted);">
+    <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+    <div style="font-size:12px;font-weight:700;color:var(--muted2);">No prop edges yet</div>
+    <div style="font-size:10px;margin-top:4px;">Load Odds then Refresh</div>
+  </div>`;
 
   return `
-  <div class="flip-card-wrap" id="fc_${fid}">
-    <div class="flip-card-inner" style="min-height:420px;">
-      <div class="flip-card-front">
-        <div class="game-card ${awayFav?'fav-away':'fav-home'}" style="height:100%;display:flex;flex-direction:column;">
-          <div class="game-header">
-            <div class="game-time">${time} ET</div>
-            ${statusHTML}
-          </div>
-          <div class="game-matchup">
-            <div class="team-block">
-              <div class="team-abbr ${awayFav?'favorite':'underdog'}">${g.away_team_abbr||'—'}</div>
-              <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
-              <div class="fav-badge ${awayFav?'fav':'dog'}">${awayFav?'⭐ FAV':'DOG'}</div>
-            </div>
-            <div class="vs-divider">${vsHTML}</div>
-            <div class="team-block">
-              <div class="team-abbr ${!awayFav?'favorite':'underdog'}">${g.home_team_abbr||'—'}</div>
-              <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
-              <div class="fav-badge ${!awayFav?'fav':'dog'}">${!awayFav?'⭐ FAV':'DOG'}</div>
-            </div>
-          </div>
-          <div class="game-pitchers"><span>${g.away_pitcher_name||'TBD'}</span><span>${g.home_pitcher_name||'TBD'}</span></div>
-          <div class="game-venue">${g.venue||''}</div>
-          ${projSection}
-          ${oddsSection}
-          <div style="padding:8px 14px;border-top:1px solid var(--border);text-align:center;margin-top:auto;">
-            <button class="flip-btn" onclick="event.stopPropagation();document.getElementById('fc_${fid}').classList.toggle('flipped')">
-              🎯 Top Props →
-            </button>
-          </div>
+  <div class="gc-wrap" id="${cid}">
+    <div class="gc-front game-card ${awayFav?'fav-away':'fav-home'}">
+      <div class="game-header">
+        <div class="game-time">${time} ET</div>
+        ${statusHTML}
+      </div>
+      <div class="game-matchup">
+        <div class="team-block">
+          <div class="team-abbr ${awayFav?'favorite':'underdog'}">${g.away_team_abbr||'—'}</div>
+          <div class="team-record">${g.away_record_w}-${g.away_record_l}</div>
+          <div class="fav-badge ${awayFav?'fav':'dog'}">${awayFav?'⭐ FAV':'DOG'}</div>
+        </div>
+        <div class="vs-divider">${vsHTML}</div>
+        <div class="team-block">
+          <div class="team-abbr ${!awayFav?'favorite':'underdog'}">${g.home_team_abbr||'—'}</div>
+          <div class="team-record">${g.home_record_w}-${g.home_record_l}</div>
+          <div class="fav-badge ${!awayFav?'fav':'dog'}">${!awayFav?'⭐ FAV':'DOG'}</div>
         </div>
       </div>
-      <div class="flip-card-back">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2);">
-          <div style="font-size:12px;font-weight:800;color:var(--gold);">🎯 ${g.away_team_abbr} vs ${g.home_team_abbr} — Top Props</div>
-          <button class="flip-btn" onclick="event.stopPropagation();document.getElementById('fc_${fid}').classList.toggle('flipped')">← Back</button>
-        </div>
-        ${backRows}
+      <div class="game-pitchers"><span>${g.away_pitcher_name||'TBD'}</span><span>${g.home_pitcher_name||'TBD'}</span></div>
+      <div class="game-venue">${g.venue||''}</div>
+      ${projSection}
+      ${oddsSection}
+      <button class="flip-btn" onclick="flipCard('${cid}')">🎯 Top Props →</button>
+    </div>
+    <div class="gc-back">
+      <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2);">
+        <div style="font-size:12px;font-weight:800;color:var(--gold);">🎯 ${g.away_team_abbr} vs ${g.home_team_abbr} — Top Props</div>
+        <button class="flip-btn" style="width:auto;border-top:none;padding:4px 10px;background:var(--card2);" onclick="flipCard('${cid}')">← Back</button>
       </div>
+      ${propsHTML}
     </div>
   </div>`;
 }
-
 
 let liveScoresFetched = false;
 function renderGames() {
