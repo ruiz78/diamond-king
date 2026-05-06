@@ -2364,11 +2364,23 @@ function getGameProps(g) {
     (g.away_team_abbr||'').toUpperCase(),
     (g.home_team_abbr||'').toUpperCase(),
   ]);
+  const venue = (g.venue||'').toLowerCase();
+
+  // Build a set of player names from batters playing in this game (matched by venue)
+  const venuePlayers = new Set();
+  state.batters.forEach(b => {
+    if ((b.venue||'').toLowerCase() === venue && b.player_name) {
+      venuePlayers.add(b.player_name.trim().toLowerCase());
+    }
+  });
+
   return dedupEdges(state.edges)
     .filter(e => {
       if (isEdgeGameFinal(e)) return false;
-      const t = (playerTeamMap[e.player_name?.trim().toLowerCase()]||'').toUpperCase();
-      return abbrs.has(t);
+      const name = e.player_name?.trim().toLowerCase() || '';
+      // Match by team abbr (pitchers) OR by venue player list (batters)
+      const t = (playerTeamMap[name]||'').toUpperCase();
+      return abbrs.has(t) || venuePlayers.has(name);
     })
     .sort((a,b) => (parseFloat(b.win_prob_pct)||0) - (parseFloat(a.win_prob_pct)||0))
     .slice(0, 8);
