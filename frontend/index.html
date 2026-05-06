@@ -1727,8 +1727,7 @@ body::before {
   border-radius: 14px;
   border: 1px solid var(--border);
   background: var(--card);
-  overflow: hidden;
-  transition: opacity 0.25s, transform 0.25s;
+  transition: opacity 0.2s;
 }
 .gc-back {
   display: none;
@@ -2376,7 +2375,12 @@ function getGameProps(g) {
 }
 
 function flipCard(id) {
-  document.getElementById(id).classList.toggle('showing-back');
+  const wrap = document.getElementById(id);
+  const front = wrap.querySelector('.gc-front');
+  const back  = wrap.querySelector('.gc-back');
+  const isFlipped = back.style.display === 'block';
+  front.style.display = isFlipped ? '' : 'none';
+  back.style.display  = isFlipped ? 'none' : 'block';
 }
 
 function gameCardHTML(g) {
