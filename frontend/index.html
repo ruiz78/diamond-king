@@ -2366,28 +2366,33 @@ function getGameProps(g) {
   ]);
   const venue = (g.venue||'').toLowerCase();
 
-  // Build set of batter names playing at this venue (home team batters)
-  const venuePlayers = new Set();
+  // Build set of all batter names in this game via venue + opp_team
+  const gamePlayers = new Set();
   state.batters.forEach(b => {
-    if ((b.venue||'').toLowerCase() === venue && b.player_name)
-      venuePlayers.add(b.player_name.trim().toLowerCase());
-  });
-
-  // Also include all batters whose opp team plays in this game
-  state.batters.forEach(b => {
-    if (b.player_name) {
-      const oppAbbr = (b.opp_team||'').toUpperCase();
-      if (abbrs.has(oppAbbr)) venuePlayers.add(b.player_name.trim().toLowerCase());
+    if (!b.player_name) return;
+    const bVenue = (b.venue||'').toLowerCase();
+    const bOpp   = (b.opp_team||'').toUpperCase();
+    if (bVenue === venue || abbrs.has(bOpp)) {
+      gamePlayers.add(b.player_name.trim().toLowerCase());
     }
   });
 
-  return dedupEdges(state.edges)
+  // Use ALL edges (not deduped) so every game gets its own player props
+  const seen = new Set();
+  return state.edges
     .filter(e => {
       const name = e.player_name?.trim().toLowerCase() || '';
       const t = (playerTeamMap[name]||'').toUpperCase();
-      return abbrs.has(t) || venuePlayers.has(name);
+      return abbrs.has(t) || gamePlayers.has(name);
     })
     .sort((a,b) => (parseFloat(b.win_prob_pct)||0) - (parseFloat(a.win_prob_pct)||0))
+    .filter(e => {
+      // Dedupe per player+market within this game only
+      const k = e.player_name.trim().toLowerCase() + '|' + e.market;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    })
     .slice(0, 8);
 }
 
