@@ -2366,19 +2366,24 @@ function getGameProps(g) {
   ]);
   const venue = (g.venue||'').toLowerCase();
 
-  // Build a set of player names from batters playing in this game (matched by venue)
+  // Build set of batter names playing at this venue (home team batters)
   const venuePlayers = new Set();
   state.batters.forEach(b => {
-    if ((b.venue||'').toLowerCase() === venue && b.player_name) {
+    if ((b.venue||'').toLowerCase() === venue && b.player_name)
       venuePlayers.add(b.player_name.trim().toLowerCase());
+  });
+
+  // Also include all batters whose opp team plays in this game
+  state.batters.forEach(b => {
+    if (b.player_name) {
+      const oppAbbr = (b.opp_team||'').toUpperCase();
+      if (abbrs.has(oppAbbr)) venuePlayers.add(b.player_name.trim().toLowerCase());
     }
   });
 
   return dedupEdges(state.edges)
     .filter(e => {
-      if (isEdgeGameFinal(e)) return false;
       const name = e.player_name?.trim().toLowerCase() || '';
-      // Match by team abbr (pitchers) OR by venue player list (batters)
       const t = (playerTeamMap[name]||'').toUpperCase();
       return abbrs.has(t) || venuePlayers.has(name);
     })
