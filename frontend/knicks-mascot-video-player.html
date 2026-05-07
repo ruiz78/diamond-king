@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KNICKS MASCOT — The Video</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Bebas Neue', sans-serif;
+  overflow: hidden;
+}
+
+#stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 9 / 16));
+  aspect-ratio: 9/16;
+  background: #000;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ─── BACKGROUND LAYERS ─ */
+#bg-solid {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 0;
+}
+
+#bg-image {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 40%, #1a0a00 0%, #000 60%),
+    /* creature silhouette placeholder */
+    radial-gradient(ellipse 40% 60% at 50% 45%, #0d0500 0%, transparent 70%);
+  z-index: 1;
+  transform-origin: center;
+}
+
+/* Eye glow effect representing the creature */
+#creature-glow {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(ellipse 30% 15% at 35% 45%, rgba(245,132,38,0.9) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 15% at 65% 45%, rgba(245,132,38,0.9) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 80% at 50% 50%, rgba(245,132,38,0.08) 0%, transparent 70%);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+/* Creature body shape */
+#creature-body {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  right: 10%;
+  bottom: 5%;
+  z-index: 2;
+  opacity: 0;
+}
+
+#creature-body svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── ORANGE/BLUE LIGHT LEAKS ─ */
+#light-leak-orange {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 100% at -20% 50%, rgba(245,132,38,0.5) 0%, transparent 60%);
+  z-index: 3;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+#light-leak-blue {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 100% at 120% 50%, rgba(0,107,182,0.6) 0%, transparent 60%);
+  z-index: 3;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+/* ─── VIGNETTE ─ */
+#vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ─── GLITCH OVERLAY ─ */
+#glitch {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glitch-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(245,132,38,0.8);
+}
+
+.glitch-rgb-r {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,0,0,0.15);
+  transform: translateX(-4px);
+}
+.glitch-rgb-b {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,255,0.15);
+  transform: translateX(4px);
+}
+
+/* ─── SCANLINES ─ */
+#scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  opacity: 0.4;
+}
+
+/* ─── TEXT LAYERS ─ */
+#text-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8% 6%;
+  pointer-events: none;
+}
+
+.text-block {
+  position: absolute;
+  width: 88%;
+  opacity: 0;
+  text-align: center;
+  transform: translateY(8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.text-block.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hook text */
+#text-hook {
+  top: 8%;
+  left: 6%;
+  width: 88%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(14px, 4vw, 22px);
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* Build overlay texts */
+.overlay-pop {
+  position: absolute;
+  left: 6%;
+  width: 88%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(16px, 5vw, 30px);
+  letter-spacing: 1px;
+  line-height: 1.1;
+  opacity: 0;
+  transform: translateX(-12px);
+  transition: opacity 0.25s, transform 0.25s;
+  text-align: left;
+  padding: 6px 14px;
+  border-left: 4px solid;
+}
+
+.overlay-pop.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+#text-b1 { top: 12%; border-color: var(--o); color: #F58426; background: rgba(0,0,0,0.55); }
+#text-b2 { top: 28%; border-color: #006BB6; color: #5bbfff; background: rgba(0,0,0,0.55); }
+#text-b3 { top: 44%; border-color: var(--o); color: #F58426; background: rgba(0,0,0,0.55); }
+
+:root { --o: #F58426; --b: #006BB6; }
+
+/* Fast cut labels */
+#text-cut {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(18px, 6vw, 42px);
+  letter-spacing: 4px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 30px rgba(245,132,38,0.8), 0 2px 8px rgba(0,0,0,0.9);
+  opacity: 0;
+}
+
+/* Climax main text */
+#text-climax {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(24px, 8vw, 56px);
+  letter-spacing: 3px;
+  text-align: center;
+  background: linear-gradient(90deg, #F58426, #fff, #006BB6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(245,132,38,0.6));
+}
+
+/* CTA texts */
+#text-cta-1, #text-cta-2 {
+  position: absolute;
+  width: 88%;
+  left: 6%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(14px, 4.5vw, 26px);
+  text-align: center;
+  color: #fff;
+  background: rgba(0,0,0,0.65);
+  padding: 8px 16px;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+#text-cta-1 {
+  bottom: 22%;
+  border: 1px solid rgba(245,132,38,0.5);
+}
+
+#text-cta-2 {
+  bottom: 12%;
+  border: 1px solid rgba(0,107,182,0.5);
+}
+
+#text-cta-1.visible, #text-cta-2.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Jersey #33 overlay */
+#jersey-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(80px, 25vw, 200px);
+  letter-spacing: -4px;
+  color: #F58426;
+  text-shadow: -4px 0 #006BB6, 4px 0 rgba(245,132,38,0.3);
+  opacity: 0;
+}
+
+/* MSG sign */
+#msg-sign {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(20px, 7vw, 52px);
+  letter-spacing: 6px;
+  color: #fff;
+  border: 3px solid #F58426;
+  padding: 8px 24px;
+  background: rgba(245,132,38,0.1);
+  opacity: 0;
+  text-shadow: 0 0 20px rgba(245,132,38,0.8);
+  box-shadow: 0 0 20px rgba(245,132,38,0.3), inset 0 0 20px rgba(245,132,38,0.1);
+}
+
+/* Eye blink for the creature */
+#eye-blink-l, #eye-blink-r {
+  position: absolute;
+  top: 30%;
+  width: 12%;
+  aspect-ratio: 2/1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #F58426 30%, rgba(245,132,38,0.3) 70%, transparent 100%);
+  box-shadow: 0 0 20px rgba(245,132,38,0.8), 0 0 40px rgba(245,132,38,0.4);
+  opacity: 0;
+}
+#eye-blink-l { left: 28%; }
+#eye-blink-r { right: 28%; }
+
+/* ─── FLASH ─ */
+#flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── CONTROLS ─ */
+#controls {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+#play-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  padding: 8px 24px;
+  background: #F58426;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  pointer-events: all;
+}
+
+#play-btn:hover { background: #ffa040; }
+
+#progress-wrap {
+  width: 140px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F58426, #006BB6);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+#timer-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  min-width: 30px;
+}
+
+/* ─── FREEZE FRAME ─ */
+#freeze-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 8;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── START SCREEN ─ */
+#start-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+#start-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 10vw, 72px);
+  letter-spacing: 4px;
+  background: linear-gradient(90deg, #F58426, #fff, #006BB6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  line-height: 0.95;
+  padding: 0 10%;
+}
+
+#start-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(12px, 3.5vw, 20px);
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+#start-btn {
+  margin-top: 16px;
+  width: clamp(60px, 15vw, 90px);
+  height: clamp(60px, 15vw, 90px);
+  border-radius: 50%;
+  background: #F58426;
+  border: 3px solid rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-play 2s infinite;
+  cursor: pointer;
+}
+
+#start-btn svg {
+  width: 40%;
+  height: 40%;
+  fill: #000;
+  margin-left: 8%;
+}
+
+@keyframes pulse-play {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,132,38,0.5); }
+  50%       { box-shadow: 0 0 0 20px rgba(245,132,38,0); }
+}
+
+#start-duration {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Background city grid */
+.city-line {
+  position: absolute;
+  background: rgba(245,132,38,0.06);
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- Start screen -->
+  <div id="start-screen">
+    <div id="start-title">KNICKS<br>NEW MASCOT</div>
+    <div id="start-sub">"Born in the sewers of Manhattan"</div>
+    <div id="start-btn">
+      <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+    </div>
+    <div id="start-duration">30 SEC VIDEO</div>
+  </div>
+
+  <!-- Background -->
+  <div id="bg-solid"></div>
+  <div id="bg-image"></div>
+  <div id="creature-glow"></div>
+
+  <!-- Creature body SVG -->
+  <div id="creature-body">
+    <svg viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Creature silhouette — abstract monstrous figure -->
+      <ellipse cx="150" cy="160" rx="70" ry="85" fill="rgba(20,8,0,0.9)" />
+      <!-- Eyes -->
+      <ellipse cx="120" cy="140" rx="18" ry="12" fill="#F58426" opacity="0.9"/>
+      <ellipse cx="180" cy="140" rx="18" ry="12" fill="#F58426" opacity="0.9"/>
+      <ellipse cx="120" cy="140" rx="8"  ry="8"  fill="#000"/>
+      <ellipse cx="180" cy="140" rx="8"  ry="8"  fill="#000"/>
+      <!-- Pupils -->
+      <circle  cx="122" cy="139" r="3" fill="#F58426" opacity="0.6"/>
+      <circle  cx="182" cy="139" r="3" fill="#F58426" opacity="0.6"/>
+      <!-- Snout/mouth -->
+      <path d="M130 175 Q150 192 170 175" stroke="#F58426" stroke-width="2.5" fill="none" opacity="0.6"/>
+      <!-- Body -->
+      <path d="M80 240 Q80 200 100 190 L150 245 L200 190 Q220 200 220 240 L230 380 Q210 400 150 410 Q90 400 70 380 Z"
+            fill="rgba(15,5,0,0.95)" />
+      <!-- Jersey #33 hint -->
+      <text x="150" y="330" font-family="Arial Black,sans-serif" font-size="72" font-weight="900"
+            fill="#F58426" text-anchor="middle" opacity="0.7">33</text>
+      <!-- Arm pointing right -->
+      <path d="M220 260 L290 220 L295 228 L225 268 Z" fill="rgba(20,8,0,0.95)"/>
+      <!-- Claws -->
+      <line x1="290" y1="220" x2="300" y2="210" stroke="#F58426" stroke-width="2"/>
+      <line x1="291" y1="222" x2="303" y2="215" stroke="#F58426" stroke-width="2"/>
+      <line x1="292" y1="225" x2="304" y2="220" stroke="#F58426" stroke-width="2"/>
+      <!-- Left arm -->
+      <path d="M80 260 L10 220 L5 228 L75 268 Z" fill="rgba(20,8,0,0.95)"/>
+    </svg>
+  </div>
+
+  <!-- Eyes for blink animation -->
+  <div id="eye-blink-l"></div>
+  <div id="eye-blink-r"></div>
+
+  <!-- Jersey #33 cut -->
+  <div id="jersey-num">33</div>
+  <!-- MSG sign cut -->
+  <div id="msg-sign">MSG</div>
+
+  <!-- Light leaks -->
+  <div id="light-leak-orange"></div>
+  <div id="light-leak-blue"></div>
+
+  <!-- Vignette -->
+  <div id="vignette"></div>
+
+  <!-- Glitch -->
+  <div id="glitch">
+    <div class="glitch-rgb-r"></div>
+    <div class="glitch-rgb-b"></div>
+    <div class="glitch-bar" id="gb1"></div>
+    <div class="glitch-bar" id="gb2"></div>
+  </div>
+
+  <!-- Scanlines -->
+  <div id="scanlines"></div>
+
+  <!-- Freeze -->
+  <div id="freeze-overlay"></div>
+
+  <!-- Text overlays -->
+  <div id="text-hook" class="text-block">
+    "They said the Knicks needed a new mascot…"
+  </div>
+
+  <!-- Build overlays -->
+  <div id="text-b1" class="overlay-pop">"Born in the sewers of Manhattan…"</div>
+  <div id="text-b2" class="overlay-pop">"Raised on MSG hardwood…"</div>
+  <div id="text-b3" class="overlay-pop">"He bleeds orange &amp; blue…"</div>
+
+  <!-- Fast cut label -->
+  <div id="text-cut"></div>
+
+  <!-- Climax text -->
+  <div id="text-climax">KNICKS IN 6.<br>NO CAP. 🏀</div>
+
+  <!-- CTA -->
+  <div id="text-cta-1">Follow if you want him as the official mascot 👁️</div>
+  <div id="text-cta-2">Tag a Knicks fan who needs this 👇</div>
+
+  <!-- Flash -->
+  <div id="flash"></div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button id="play-btn">PLAY</button>
+    <div id="progress-wrap"><div id="progress-fill"></div></div>
+    <div id="timer-label">0s</div>
+  </div>
+
+</div>
+
+<script>
+const DURATION = 30; // seconds
+
+const $ = id => document.getElementById(id);
+
+// ─── State ───────────────────────────────────────────────
+let raf = null;
+let startTime = null;
+let running = false;
+let currentPhase = -1;
+let glitchTimeout = null;
+
+// ─── Elements ────────────────────────────────────────────
+const stage       = $('stage');
+const startScreen = $('start-screen');
+const bgImage     = $('bg-image');
+const creatureGlow= $('creature-glow');
+const creatureBody= $('creature-body');
+const eyeL        = $('eye-blink-l');
+const eyeR        = $('eye-blink-r');
+const llOrange    = $('light-leak-orange');
+const llBlue      = $('light-leak-blue');
+const glitch      = $('glitch');
+const gb1         = $('gb1');
+const gb2         = $('gb2');
+const flash       = $('flash');
+const freeze      = $('freeze-overlay');
+const playBtn     = $('play-btn');
+const progressFill= $('progress-fill');
+const timerLabel  = $('timer-label');
+
+const textHook    = $('text-hook');
+const textB1      = $('text-b1');
+const textB2      = $('text-b2');
+const textB3      = $('text-b3');
+const textCut     = $('text-cut');
+const textClimax  = $('text-climax');
+const textCta1    = $('text-cta-1');
+const textCta2    = $('text-cta-2');
+const jerseyNum   = $('jersey-num');
+const msgSign     = $('msg-sign');
+
+// ─── Utility ─────────────────────────────────────────────
+function set(el, styles) {
+  if (!el) return;
+  Object.assign(el.style, styles);
+}
+
+function fadeIn(el, dur = 300) {
+  if (!el) return;
+  el.style.transition = `opacity ${dur}ms, transform ${dur}ms`;
+  el.style.opacity = '1';
+  el.style.transform = el.style.transform?.replace('translateY(8px)', 'translateY(0)')
+                                           .replace('translateX(-12px)', 'translateX(0)')
+                                           .replace('translateX(10px)', 'translateX(0)') || '';
+}
+
+function fadeOut(el, dur = 200) {
+  if (!el) return;
+  el.style.transition = `opacity ${dur}ms`;
+  el.style.opacity = '0';
+}
+
+function addClass(el, cls) { el?.classList.add(cls); }
+function removeClass(el, cls) { el?.classList.remove(cls); }
+
+// ─── Glitch ──────────────────────────────────────────────
+function doGlitch(intensity = 1) {
+  glitch.style.opacity = '1';
+  gb1.style.top = (Math.random() * 80 + 5) + '%';
+  gb2.style.top = (Math.random() * 80 + 5) + '%';
+  gb1.style.height = (2 + Math.random() * 8 * intensity) + 'px';
+  gb2.style.height = (1 + Math.random() * 5 * intensity) + 'px';
+  gb1.style.background = Math.random() > 0.5
+    ? `rgba(245,132,38,${0.5 + Math.random() * 0.5})`
+    : `rgba(0,107,182,${0.5 + Math.random() * 0.5})`;
+  gb2.style.background = Math.random() > 0.5
+    ? `rgba(245,132,38,${0.3 + Math.random() * 0.4})`
+    : '#fff';
+  glitch.querySelector('.glitch-rgb-r').style.transform = `translateX(${-2 - Math.random() * 4 * intensity}px)`;
+  glitch.querySelector('.glitch-rgb-b').style.transform = `translateX(${2 + Math.random() * 4 * intensity}px)`;
+  clearTimeout(glitchTimeout);
+  glitchTimeout = setTimeout(() => { glitch.style.opacity = '0'; }, 80 + Math.random() * 80);
+}
+
+function doFlash(alpha = 0.6, dur = 120) {
+  flash.style.opacity = alpha;
+  setTimeout(() => { flash.style.opacity = '0'; }, dur);
+}
+
+// ─── Ken Burns zoom ──────────────────────────────────────
+function applyZoom(t) {
+  // 0→30s: scale from 1.0 to 1.35
+  const scale = 1.0 + (t / DURATION) * 0.35;
+  bgImage.style.transform = `scale(${scale})`;
+  creatureBody.style.transform = `scale(${0.95 + (t / DURATION) * 0.2}) translateY(${-t * 0.3}px)`;
+}
+
+// ─── Cut labels (climax fast cuts) ───────────────────────
+const cutLabels = ['CLOSE-UP EYES', 'JERSEY #33', 'THE POINT', 'MSG'];
+let cutIndex = 0;
+let lastCutTime = 0;
+
+function showCut(label) {
+  textCut.textContent = label;
+  textCut.style.opacity = '1';
+  textCut.style.transform = 'translate(-50%, -50%) scale(1.05)';
+  setTimeout(() => {
+    textCut.style.opacity = '0';
+    textCut.style.transform = 'translate(-50%, -50%) scale(1)';
+  }, 200);
+}
+
+// ─── Phase controller ────────────────────────────────────
+function resetAll() {
+  // Hide everything
+  const allText = [textHook, textB1, textB2, textB3, textCut, textClimax, textCta1, textCta2, jerseyNum, msgSign];
+  allText.forEach(el => { if (el) el.style.opacity = '0'; });
+
+  [llOrange, llBlue, creatureGlow, creatureBody, freeze].forEach(el => {
+    if (el) el.style.opacity = '0';
+  });
+
+  eyeL.style.opacity = '0';
+  eyeR.style.opacity = '0';
+  glitch.style.opacity = '0';
+  flash.style.opacity = '0';
+  bgImage.style.transform = 'scale(1)';
+  creatureBody.style.transform = 'scale(0.95)';
+
+  [textB1, textB2, textB3].forEach(el => {
+    el.style.transform = 'translateX(-12px)';
+    el.style.transition = '';
+  });
+
+  textHook.style.transform = 'translateY(8px)';
+  textClimax.style.transform = '';
+
+  set(bgImage, { background: 'radial-gradient(ellipse 60% 80% at 50% 40%, #1a0a00 0%, #000 60%), radial-gradient(ellipse 40% 60% at 50% 45%, #0d0500 0%, transparent 70%)' });
+
+  currentPhase = -1;
+  cutIndex = 0;
+  lastCutTime = 0;
+}
+
+// ─── Main animation tick ─────────────────────────────────
+function tick(ts) {
+  if (!startTime) startTime = ts;
+  const elapsed = (ts - startTime) / 1000; // seconds
+  const t = Math.min(elapsed, DURATION);
+
+  // Progress bar & timer
+  progressFill.style.width = (t / DURATION * 100) + '%';
+  timerLabel.textContent = Math.floor(t) + 's';
+
+  // Ken Burns
+  applyZoom(t);
+
+  // ─── HOOK: 0–3s ───────────────────────────────
+  if (t < 3) {
+    if (currentPhase !== 0) {
+      currentPhase = 0;
+      // Black screen → thunder → text pop
+      set(bgImage, { opacity: '0', transition: 'opacity 0.5s' });
+      creatureGlow.style.opacity = '0';
+      creatureBody.style.opacity = '0';
+      llOrange.style.opacity = '0';
+      llBlue.style.opacity = '0';
+    }
+
+    if (t > 0.8 && t < 2.8) {
+      textHook.style.opacity = t > 1 ? '1' : '0';
+      textHook.style.transform = 'translateY(0)';
+      textHook.style.transition = 'opacity 0.3s, transform 0.3s';
+    }
+
+    if (t > 2.0) {
+      // Start revealing background
+      set(bgImage, { opacity: String(Math.min(1, (t - 2) * 2)), transition: 'none' });
+    }
+  }
+
+  // ─── BUILD: 3–15s ─────────────────────────────
+  else if (t < 15) {
+    if (currentPhase !== 1) {
+      currentPhase = 1;
+      // Show creature, beat drop
+      set(bgImage, { opacity: '1' });
+      creatureGlow.style.opacity = '1';
+      creatureGlow.style.transition = 'opacity 1s';
+      creatureBody.style.opacity = '1';
+      creatureBody.style.transition = 'opacity 1s, transform 0.1s';
+      textHook.style.opacity = '0';
+    }
+
+    const bt = t - 3; // 0–12
+    const prog = bt / 12;
+
+    // Light leaks pulse with the beat (approximately)
+    const beatHz = 0.8; // ~96 BPM / 120 = simulate beat
+    const beat = (Math.sin(bt * beatHz * Math.PI * 2) + 1) / 2;
+    llOrange.style.opacity = String(0.3 + beat * 0.5);
+    llBlue.style.opacity   = String(0.2 + (1 - beat) * 0.4);
+
+    // Text overlays timed to beat
+    if (bt > 1.0)  { textB1.style.opacity = '1'; textB1.style.transform = 'translateX(0)'; textB1.style.transition = 'opacity 0.3s, transform 0.3s'; }
+    if (bt > 4.5)  { textB2.style.opacity = '1'; textB2.style.transform = 'translateX(0)'; textB2.style.transition = 'opacity 0.3s, transform 0.3s'; }
+    if (bt > 8.0)  { textB3.style.opacity = '1'; textB3.style.transform = 'translateX(0)'; textB3.style.transition = 'opacity 0.3s, transform 0.3s'; }
+
+    // Occasional glitch
+    if (Math.random() < 0.015) doGlitch(0.5 + prog);
+  }
+
+  // ─── CLIMAX: 15–25s ───────────────────────────
+  else if (t < 25) {
+    if (currentPhase !== 2) {
+      currentPhase = 2;
+      // Beat drops hard — hide build texts
+      textB1.style.opacity = '0';
+      textB2.style.opacity = '0';
+      textB3.style.opacity = '0';
+      doFlash(0.9, 80);
+      llOrange.style.opacity = '1';
+      llBlue.style.opacity   = '0.8';
+    }
+
+    const ct = t - 15; // 0–10
+    const cProg = ct / 10;
+
+    // Fast beat: ~150 BPM simulation
+    const fastBeat = (Math.sin(ct * 2.5 * Math.PI * 2) + 1) / 2;
+
+    // Background strobe with colors
+    set(bgImage, {
+      background: fastBeat > 0.7
+        ? 'radial-gradient(ellipse 80% 100% at 50% 40%, #2a0d00 0%, #000 60%)'
+        : 'radial-gradient(ellipse 80% 100% at 50% 40%, #001526 0%, #000 60%)',
+      transition: 'none'
+    });
+
+    llOrange.style.opacity = String(fastBeat > 0.6 ? 0.7 : 0.1);
+    llBlue.style.opacity   = String(fastBeat < 0.4 ? 0.7 : 0.1);
+
+    // Glitch on every beat
+    if (Math.random() < 0.08) doGlitch(1.5);
+
+    // Flash on strong beats
+    if (fastBeat > 0.92 && Math.random() < 0.3) doFlash(0.25, 50);
+
+    // Fast cut sequence (~every 2.5s)
+    if (ct - lastCutTime > 2.3 && cutIndex < cutLabels.length) {
+      lastCutTime = ct;
+      showCut(cutLabels[cutIndex]);
+
+      // Show corresponding visual
+      jerseyNum.style.opacity  = cutIndex === 1 ? '1' : '0';
+      msgSign.style.opacity    = cutIndex === 3 ? '1' : '0';
+      eyeL.style.opacity       = cutIndex === 0 ? '0.9' : '0';
+      eyeR.style.opacity       = cutIndex === 0 ? '0.9' : '0';
+
+      // Eye blink animation
+      if (cutIndex === 0) {
+        setTimeout(() => { eyeL.style.opacity = '0'; eyeR.style.opacity = '0'; }, 300);
+        setTimeout(() => { eyeL.style.opacity = '0.9'; eyeR.style.opacity = '0.9'; }, 600);
+      }
+
+      doFlash(0.5, 60);
+      doGlitch(2);
+      cutIndex++;
+    }
+
+    // Climax text fades in at 7s mark
+    if (ct > 6.5) {
+      textClimax.style.opacity = String(Math.min(1, (ct - 6.5) * 1.5));
+    }
+
+    // Pointing finger highlight
+    if (cutIndex >= 3) {
+      creatureBody.style.filter = `drop-shadow(0 0 20px rgba(245,132,38,0.8)) drop-shadow(0 0 40px rgba(0,107,182,0.6))`;
+    }
+  }
+
+  // ─── CTA: 25–30s ──────────────────────────────
+  else {
+    if (currentPhase !== 3) {
+      currentPhase = 3;
+      // Freeze frame
+      freeze.style.opacity = '0.25';
+      freeze.style.transition = 'opacity 0.5s';
+
+      // Clean up climax elements
+      jerseyNum.style.opacity = '0';
+      msgSign.style.opacity   = '0';
+      eyeL.style.opacity      = '0';
+      eyeR.style.opacity      = '0';
+      textCut.style.opacity   = '0';
+      glitch.style.opacity    = '0';
+
+      // Settle creature glow
+      llOrange.style.opacity = '0.4';
+      llBlue.style.opacity   = '0.3';
+      creatureBody.style.filter = 'drop-shadow(0 0 10px rgba(245,132,38,0.5))';
+
+      // Show CTA text
+      setTimeout(() => {
+        textCta1.style.opacity = '1';
+        textCta1.style.transform = 'translateY(0)';
+        textCta1.style.transition = 'opacity 0.4s, transform 0.4s';
+      }, 500);
+      setTimeout(() => {
+        textCta2.style.opacity = '1';
+        textCta2.style.transform = 'translateY(0)';
+        textCta2.style.transition = 'opacity 0.4s, transform 0.4s';
+      }, 1100);
+    }
+
+    // Keep climax text visible
+    textClimax.style.opacity = '0.7';
+  }
+
+  // ─── End ──────────────────────────────────────
+  if (t >= DURATION) {
+    running = false;
+    playBtn.textContent = 'REPLAY';
+    return;
+  }
+
+  raf = requestAnimationFrame(tick);
+}
+
+// ─── Start / Stop ────────────────────────────────────────
+function startVideo() {
+  startScreen.style.opacity = '0';
+  startScreen.style.transition = 'opacity 0.4s';
+  setTimeout(() => { startScreen.style.display = 'none'; }, 400);
+
+  resetAll();
+  running = true;
+  startTime = null;
+  playBtn.textContent = 'STOP';
+  raf = requestAnimationFrame(tick);
+}
+
+function stopVideo() {
+  if (raf) cancelAnimationFrame(raf);
+  running = false;
+  playBtn.textContent = 'REPLAY';
+}
+
+// ─── Controls ────────────────────────────────────────────
+$('start-screen').addEventListener('click', startVideo);
+
+playBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (running) {
+    stopVideo();
+  } else {
+    resetAll();
+    running = true;
+    startTime = null;
+    playBtn.textContent = 'STOP';
+    raf = requestAnimationFrame(tick);
+  }
+});
+
+// Initialize
+resetAll();
+</script>
+</body>
+</html>

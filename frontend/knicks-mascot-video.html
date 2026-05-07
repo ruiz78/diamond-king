@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KNICKS MASCOT — Video Storyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;900&family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --knicks-orange: #F58426;
+  --knicks-blue:   #006BB6;
+  --knicks-silver: #BEC0C2;
+  --black:         #0a0a0a;
+  --dark:          #111111;
+  --card:          #161616;
+  --border:        #222222;
+  --text:          #f0f0f0;
+  --muted:         #888888;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── HERO ─────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, rgba(245,132,38,0.18) 0%, transparent 65%),
+              radial-gradient(ellipse at 80% 70%, rgba(0,107,182,0.18) 0%, transparent 60%),
+              #0a0a0a;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(245,132,38,0.03) 80px, rgba(245,132,38,0.03) 81px),
+    repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(0,107,182,0.03) 80px, rgba(0,107,182,0.03) 81px);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--knicks-orange);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.2s ease forwards;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 12vw, 140px);
+  line-height: 0.9;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.4s ease forwards;
+}
+
+.hero-title .orange { color: var(--knicks-orange); }
+.hero-title .blue   { color: var(--knicks-blue); }
+
+.hero-subtitle {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(18px, 3vw, 28px);
+  color: var(--knicks-silver);
+  letter-spacing: 1px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.6s ease forwards;
+}
+
+.badge-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.8s ease forwards;
+}
+
+.badge {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.badge-orange { background: var(--knicks-orange); color: #000; }
+.badge-blue   { background: var(--knicks-blue);   color: #fff; }
+.badge-outline { border: 1px solid var(--border); color: var(--muted); }
+
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  animation: fadeUp 0.7s 1.2s ease forwards;
+}
+
+/* ─── TIMELINE ──────────────────────────── */
+.timeline-section {
+  padding: 80px 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--knicks-orange);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 90px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border) 10%, var(--border) 90%, transparent);
+}
+
+.segment {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 0;
+  position: relative;
+}
+
+.seg-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 24px;
+  padding-top: 24px;
+}
+
+.seg-seconds {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--knicks-orange);
+  line-height: 1;
+}
+
+.seg-unit {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.seg-dot {
+  position: absolute;
+  left: 90px;
+  top: 30px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  border: 2px solid var(--black);
+}
+
+.seg-body {
+  padding: 20px 0 20px 32px;
+}
+
+.seg-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.seg-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.seg-range {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card);
+  padding: 3px 10px;
+  border-radius: 3px;
+}
+
+.seg-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.seg-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+
+.hook-card::before   { background: var(--knicks-orange); }
+.build-card::before  { background: var(--knicks-blue); }
+.climax-card::before { background: linear-gradient(to bottom, var(--knicks-orange), var(--knicks-blue)); }
+.cta-card::before    { background: var(--knicks-silver); }
+
+.beat-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.beat-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #ccc;
+}
+
+.beat-list li .icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.icon-orange { background: rgba(245,132,38,0.15); color: var(--knicks-orange); }
+.icon-blue   { background: rgba(0,107,182,0.15);  color: #4aadff; }
+.icon-silver { background: rgba(190,192,194,0.12); color: var(--knicks-silver); }
+
+.overlay-texts {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overlay-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.overlay-text-1 { background: rgba(245,132,38,0.12); color: var(--knicks-orange); border-left: 3px solid var(--knicks-orange); }
+.overlay-text-2 { background: rgba(0,107,182,0.12);  color: #5bbfff; border-left: 3px solid var(--knicks-blue); margin-left: 16px; }
+.overlay-text-3 { background: rgba(245,132,38,0.12); color: var(--knicks-orange); border-left: 3px solid var(--knicks-orange); margin-left: 32px; }
+
+.climax-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--knicks-orange), var(--knicks-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 16px;
+  display: block;
+}
+
+.cut-sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cut-pill {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+
+.cut-pill:nth-child(1) { border-color: rgba(245,132,38,0.5); color: var(--knicks-orange); }
+.cut-pill:nth-child(2) { border-color: rgba(0,107,182,0.5);  color: #5bbfff; }
+.cut-pill:nth-child(3) { border-color: rgba(245,132,38,0.5); color: var(--knicks-orange); }
+.cut-pill:nth-child(4) { border-color: rgba(190,192,194,0.4); color: var(--knicks-silver); }
+
+.cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cta-line {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--text);
+  padding: 8px 14px;
+  background: rgba(245,132,38,0.08);
+  border-radius: 4px;
+  border: 1px solid rgba(245,132,38,0.2);
+}
+
+/* ─── AUDIO ─────────────────────────────── */
+.audio-section {
+  padding: 0 20px 80px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.audio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.audio-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+
+.audio-card:hover { border-color: var(--knicks-orange); }
+
+.audio-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: rgba(245,132,38,0.3);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 32px;
+}
+
+.audio-info {}
+.audio-track {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+.audio-artist {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.audio-note {
+  font-size: 12px;
+  color: rgba(245,132,38,0.8);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ─── EFFECTS PANEL ─────────────────────── */
+.effects-section {
+  padding: 0 20px 80px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.effects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.effect-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  text-align: center;
+}
+
+.effect-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.effect-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--knicks-orange);
+  margin-bottom: 6px;
+}
+
+.effect-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ─── FOOTER ────────────────────────────── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.footer-tagline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--knicks-orange), var(--knicks-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.footer-sub {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ─── GLITCH ANIMATION ──────────────────── */
+@keyframes glitch {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+  10% { clip-path: inset(10% 0 60% 0); transform: translate(-4px, 2px); }
+  20% { clip-path: inset(50% 0 30% 0); transform: translate(4px, -2px); }
+  30% { clip-path: inset(80% 0 5% 0);  transform: translate(-2px, 4px); }
+  40% { clip-path: inset(0 0 100% 0);  transform: translate(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-orange {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,132,38,0); }
+  50%       { box-shadow: 0 0 20px 4px rgba(245,132,38,0.3); }
+}
+
+.seg-dot.hook   { background: var(--knicks-orange); animation: pulse-orange 2s infinite; }
+.seg-dot.build  { background: var(--knicks-blue); }
+.seg-dot.climax { background: linear-gradient(to bottom, var(--knicks-orange), var(--knicks-blue)); }
+.seg-dot.cta    { background: var(--knicks-silver); }
+
+/* ─── PROGRESS BAR ──────────────────────── */
+.progress-bar-section {
+  padding: 40px 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.progress-segment {
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-segment-hook   { width: 10%; background: var(--knicks-orange); }
+.progress-segment-build  { width: 40%; background: var(--knicks-blue); }
+.progress-segment-climax { width: 33.3%; background: linear-gradient(to right, var(--knicks-orange), #9b4fff); }
+.progress-segment-cta    { width: 16.7%; background: var(--knicks-silver); }
+
+.progress-labels {
+  display: flex;
+  margin-top: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.progress-labels span { flex: 1; }
+.progress-labels .lbl-hook   { width: 10%; flex: none; color: var(--knicks-orange); }
+.progress-labels .lbl-build  { width: 40%; flex: none; color: #5bbfff; }
+.progress-labels .lbl-climax { width: 33.3%; flex: none; color: #c87fff; }
+.progress-labels .lbl-cta    { width: 16.7%; flex: none; color: var(--knicks-silver); }
+
+.time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HERO ════════════════════════════ -->
+<section class="hero">
+  <p class="hero-eyebrow">Official Storyboard — Social Media Video</p>
+  <h1 class="hero-title">
+    <span class="orange">KNICKS</span><br>
+    <span class="blue">NEW</span> MASCOT
+  </h1>
+  <p class="hero-subtitle">"Born in the sewers of Manhattan. Raised on MSG hardwood."</p>
+  <div class="badge-row">
+    <span class="badge badge-orange">30 Sec Cut</span>
+    <span class="badge badge-blue">NYC Drill Audio</span>
+    <span class="badge badge-outline">CapCut / Premiere</span>
+    <span class="badge badge-outline">TikTok / Reels</span>
+  </div>
+  <p class="scroll-hint">Scroll to view storyboard</p>
+</section>
+
+<!-- ═══════════════════════════ PROGRESS BAR ════════════════════ -->
+<div class="progress-bar-section">
+  <div class="progress-track">
+    <div class="progress-segment progress-segment-hook"></div>
+    <div class="progress-segment progress-segment-build"></div>
+    <div class="progress-segment progress-segment-climax"></div>
+    <div class="progress-segment progress-segment-cta"></div>
+  </div>
+  <div class="progress-labels">
+    <span class="lbl-hook">Hook</span>
+    <span class="lbl-build">Build</span>
+    <span class="lbl-climax">Climax</span>
+    <span class="lbl-cta">CTA</span>
+  </div>
+  <div class="time-labels">
+    <span>0s</span>
+    <span>3s</span>
+    <span>15s</span>
+    <span>25s</span>
+    <span>30s</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TIMELINE ════════════════════════ -->
+<section class="timeline-section">
+  <p class="section-label">Storyboard Breakdown</p>
+  <div class="timeline">
+
+    <!-- HOOK -->
+    <div class="segment">
+      <div class="seg-time">
+        <span class="seg-seconds">0–3</span>
+        <span class="seg-unit">sec</span>
+      </div>
+      <div class="seg-dot hook"></div>
+      <div class="seg-body">
+        <div class="seg-header">
+          <span class="seg-tag" style="color:var(--knicks-orange);">HOOK</span>
+          <span class="seg-range">0 – 3 sec</span>
+        </div>
+        <div class="seg-card hook-card">
+          <ul class="beat-list">
+            <li>
+              <span class="icon icon-orange">■</span>
+              Screen black — thunder rumble SFX fades in from silence
+            </li>
+            <li>
+              <span class="icon icon-orange">T</span>
+              Text pop (white on black, heavy font):<br>
+              <strong>"They said the Knicks needed a new mascot…"</strong>
+            </li>
+            <li>
+              <span class="icon icon-orange">◎</span>
+              Hard cut to image — dramatic Ken Burns zoom punching in on the creature's face
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUILD -->
+    <div class="segment">
+      <div class="seg-time">
+        <span class="seg-seconds">3–15</span>
+        <span class="seg-unit">sec</span>
+      </div>
+      <div class="seg-dot build"></div>
+      <div class="seg-body">
+        <div class="seg-header">
+          <span class="seg-tag" style="color:#5bbfff;">BUILD</span>
+          <span class="seg-range">3 – 15 sec</span>
+        </div>
+        <div class="seg-card build-card">
+          <ul class="beat-list">
+            <li>
+              <span class="icon icon-blue">►</span>
+              NYC drill beat drops — slow Ken Burns zoom continues on full image
+            </li>
+            <li>
+              <span class="icon icon-blue">✦</span>
+              Glitch transition effects + orange &amp; blue light leaks frame the creature
+            </li>
+            <li>
+              <span class="icon icon-blue">T</span>
+              Text overlays pop one by one, timed to beat hits:
+            </li>
+          </ul>
+          <div class="overlay-texts">
+            <span class="overlay-text overlay-text-1">"Born in the sewers of Manhattan…"</span>
+            <span class="overlay-text overlay-text-2">"Raised on MSG hardwood…"</span>
+            <span class="overlay-text overlay-text-3">"He bleeds orange &amp; blue…"</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIMAX -->
+    <div class="segment">
+      <div class="seg-time">
+        <span class="seg-seconds">15–25</span>
+        <span class="seg-unit">sec</span>
+      </div>
+      <div class="seg-dot climax"></div>
+      <div class="seg-body">
+        <div class="seg-header">
+          <span class="seg-tag" style="background:linear-gradient(90deg,var(--knicks-orange),var(--knicks-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">CLIMAX</span>
+          <span class="seg-range">15 – 25 sec</span>
+        </div>
+        <div class="seg-card climax-card">
+          <ul class="beat-list">
+            <li>
+              <span class="icon icon-orange">▶▶</span>
+              Beat drops HARD — rapid cuts synced frame-to-frame with kick drum
+            </li>
+            <li>
+              <span class="icon icon-blue">◈</span>
+              AI animation effect: creature blinks / pointing finger moves toward camera
+            </li>
+          </ul>
+          <div class="cut-sequence">
+            <span class="cut-pill">Close-up eyes</span>
+            <span class="cut-pill">Jersey #33</span>
+            <span class="cut-pill">Pointing finger</span>
+            <span class="cut-pill">MSG sign</span>
+          </div>
+          <span class="climax-text">KNICKS IN 6. NO CAP. 🏀</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="segment">
+      <div class="seg-time">
+        <span class="seg-seconds">25–30</span>
+        <span class="seg-unit">sec</span>
+      </div>
+      <div class="seg-dot cta"></div>
+      <div class="seg-body">
+        <div class="seg-header">
+          <span class="seg-tag" style="color:var(--knicks-silver);">CTA</span>
+          <span class="seg-range">25 – 30 sec</span>
+        </div>
+        <div class="seg-card cta-card">
+          <ul class="beat-list">
+            <li>
+              <span class="icon icon-silver">⏸</span>
+              Freeze frame — hold on full image of creature, slight vignette
+            </li>
+            <li>
+              <span class="icon icon-silver">▼</span>
+              Text overlays slide in from bottom:
+            </li>
+          </ul>
+          <div class="cta-actions">
+            <div class="cta-line">"Follow if you want him as the official mascot" 👁️</div>
+            <div class="cta-line">"Tag a Knicks fan who needs this" 👇</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════ AUDIO ════════════════════════════ -->
+<section class="audio-section">
+  <p class="section-label">Trending Audio Options</p>
+  <div class="audio-grid">
+    <div class="audio-card">
+      <span class="audio-num">1</span>
+      <div class="audio-info">
+        <div class="audio-track">"Hiss"</div>
+        <div class="audio-artist">Megan Thee Stallion</div>
+        <div class="audio-note">Creature theme — menacing intro energy</div>
+      </div>
+    </div>
+    <div class="audio-card">
+      <span class="audio-num">2</span>
+      <div class="audio-info">
+        <div class="audio-track">"GOD DID"</div>
+        <div class="audio-artist">DJ Khaled ft. Rick Ross, Lil Wayne, Jay-Z, John Legend, Fridayy</div>
+        <div class="audio-note">Heavenly reveal — perfect for climax drop</div>
+      </div>
+    </div>
+    <div class="audio-card">
+      <span class="audio-num">3</span>
+      <div class="audio-info">
+        <div class="audio-track">NYC Drill Trending Sound</div>
+        <div class="audio-artist">Current trending — check TikTok "NYC Drill" weekly chart</div>
+        <div class="audio-note">Raw gritty feel — matches the sewer origin lore</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ EFFECTS ══════════════════════════ -->
+<section class="effects-section">
+  <p class="section-label">Post-Production Effects</p>
+  <div class="effects-grid">
+    <div class="effect-card">
+      <span class="effect-icon">⚡</span>
+      <div class="effect-name">Glitch Transition</div>
+      <div class="effect-desc">RGB split + horizontal tear on each beat hit. CapCut "Glitch" preset or manual keyframe.</div>
+    </div>
+    <div class="effect-card">
+      <span class="effect-icon">💡</span>
+      <div class="effect-name">Orange/Blue Light Leak</div>
+      <div class="effect-desc">Overlay blend mode: Screen. Use Knicks hex colors — #F58426 and #006BB6.</div>
+    </div>
+    <div class="effect-card">
+      <span class="effect-icon">🔍</span>
+      <div class="effect-name">Ken Burns Zoom</div>
+      <div class="effect-desc">Start at 100% scale, end at 130–140% over 12 seconds. Ease-in curve.</div>
+    </div>
+    <div class="effect-card">
+      <span class="effect-icon">👁️</span>
+      <div class="effect-name">AI Blink / Point FX</div>
+      <div class="effect-desc">Use CapCut AI "Motion" or RunwayML to animate the creature's eyes and pointing gesture.</div>
+    </div>
+    <div class="effect-card">
+      <span class="effect-icon">📽️</span>
+      <div class="effect-name">Freeze Frame</div>
+      <div class="effect-desc">Export a still from the video at second 25, hold for 5 seconds. Add slight blur vignette.</div>
+    </div>
+    <div class="effect-card">
+      <span class="effect-icon">🔊</span>
+      <div class="effect-name">Thunder SFX Ramp</div>
+      <div class="effect-desc">Low-pass rumble 0–1s, full thunder crack at 1.5s, fade into beat at 3s.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="footer">
+  <div class="footer-tagline">KNICKS IN 6. NO CAP.</div>
+  <p class="footer-sub">NYC born. MSG raised. Orange & blue forever.</p>
+</footer>
+
+</body>
+</html>
